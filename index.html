@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alumni Connect - Bridge the Gap</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="enhanced-styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-graduation-cap"></i>
+                <span>Alumni Connect</span>
+            </div>
+            <div class="nav-menu" id="nav-menu">
+                <a href="#home" class="nav-link">Home</a>
+                <a href="about.html" class="nav-link">About</a>
+                <a href="#features" class="nav-link">Features</a>
+                <a href="#contact" class="nav-link">Contact</a>
+                <div class="auth-buttons">
+                    <a href="login.html" class="btn-login">Login</a>
+                    <a href="signup.html" class="btn-signup">Sign Up</a>
+                </div>
+            </div>
+            <div class="hamburger" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="hero-content">
+            <h1>Bridging Alumni, Students & Future Leaders</h1>
+            <p>Stay connected, grow together, and give back to your college community.</p>
+            <div class="hero-buttons">
+                <a href="signup.html" class="btn-alumni">Join Now</a>
+                <a href="login.html" class="btn-student">Login</a>
+                <a href="signup.html" class="btn-aspirant">Sign Up</a>
+            </div>
+        </div>
+        <div class="hero-image">
+            <i class="fas fa-university"></i>
+        </div>
+    </section>
+
+    <!-- Quick Stats Section -->
+    <section class="stats-section">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">👩🎓</div>
+                    <div class="stat-number" data-target="10000">0</div>
+                    <div class="stat-label">Alumni Connected</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🎓</div>
+                    <div class="stat-number" data-target="500">0</div>
+                    <div class="stat-label">Mentorship Sessions</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🌍</div>
+                    <div class="stat-number" data-target="20">0</div>
+                    <div class="stat-label">Countries Reached</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">💼</div>
+                    <div class="stat-number" data-target="150">0</div>
+                    <div class="stat-label">Job Placements</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Why Join Section -->
+    <section class="why-section">
+        <div class="container">
+            <h2>Why Join Alumni Connect?</h2>
+            <div class="benefits-grid">
+                <div class="benefit-card">
+                    <div class="benefit-icon">🧑🎓</div>
+                    <h3>Alumni</h3>
+                    <ul>
+                        <li>Stay connected with your college</li>
+                        <li>Give mentorship to juniors</li>
+                        <li>Share job opportunities</li>
+                    </ul>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">🎓</div>
+                    <h3>Students</h3>
+                    <ul>
+                        <li>Career guidance from experts</li>
+                        <li>Networking opportunities</li>
+                        <li>Internship & job referrals</li>
+                    </ul>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">👨🏫</div>
+                    <h3>Faculty</h3>
+                    <ul>
+                        <li>Academic collaboration</li>
+                        <li>Alumni feedback on curriculum</li>
+                        <li>Research partnerships</li>
+                    </ul>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">📚</div>
+                    <h3>Aspirants</h3>
+                    <ul>
+                        <li>Real college experiences</li>
+                        <li>Connect before admission</li>
+                        <li>Course selection guidance</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Upcoming Events Section -->
+    <section class="events-section">
+        <div class="container">
+            <h2>Upcoming Events</h2>
+            <div class="events-grid">
+                <div class="event-card">
+                    <div class="event-date">
+                        <span class="day">15</span>
+                        <span class="month">Mar</span>
+                    </div>
+                    <div class="event-info">
+                        <h3>Alumni Meet 2025</h3>
+                        <p>Annual gathering of alumni, students, and faculty</p>
+                        <span class="event-location">📍 Main Campus Auditorium</span>
+                    </div>
+                    <button class="btn-register">Register Now</button>
+                </div>
+                <div class="event-card">
+                    <div class="event-date">
+                        <span class="day">22</span>
+                        <span class="month">Mar</span>
+                    </div>
+                    <div class="event-info">
+                        <h3>Tech Career Webinar</h3>
+                        <p>Industry experts share insights on tech careers</p>
+                        <span class="event-location">🌐 Online Event</span>
+                    </div>
+                    <button class="btn-register">Register Now</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features">
+        <div class="container">
+            <h2>Features</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <i class="fas fa-shield-alt"></i>
+                    <h3>Secure University Email Verification</h3>
+                    <p>Verified university email and enrollment verification for authentic connections</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-comments"></i>
+                    <h3>Mentorship & Chat Portal</h3>
+                    <p>Direct messaging and structured mentorship programs with alumni</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-briefcase"></i>
+                    <h3>Job / Internship Board</h3>
+                    <p>Exclusive job and internship opportunities shared by alumni network</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-calendar-alt"></i>
+                    <h3>Events & Alumni Meet Updates</h3>
+                    <p>Stay updated with networking events, workshops, and alumni meetups</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Success Stories Section -->
+    <section class="success-stories">
+        <div class="container">
+            <h2>Featured Alumni Success Stories</h2>
+            <div class="stories-grid">
+                <div class="story-card">
+                    <div class="story-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="story-content">
+                        <h3>Rajesh Kumar</h3>
+                        <p class="story-role">CEO, TechStart Solutions</p>
+                        <p class="story-batch">Batch 2015 - Computer Science</p>
+                        <p class="story-text">"From a small town student to leading a tech startup. Alumni Connect helped me find mentors who guided my journey."</p>
+                    </div>
+                </div>
+                <div class="story-card">
+                    <div class="story-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="story-content">
+                        <h3>Priya Sharma</h3>
+                        <p class="story-role">Senior Data Scientist, Google</p>
+                        <p class="story-batch">Batch 2018 - Mathematics</p>
+                        <p class="story-text">"The mentorship I received through this platform was invaluable. It opened doors I never imagined possible."</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- News & Announcements -->
+    <section class="news-section">
+        <div class="container">
+            <h2>Latest News & Announcements</h2>
+            <div class="news-ticker">
+                <div class="ticker-content">
+                    <span>🎉 College ranked #1 in Engineering Excellence 2024</span>
+                    <span>🏆 Alumni Ravi Patel wins Innovation Award</span>
+                    <span>📈 95% placement record achieved this year</span>
+                    <span>⭐ New AI Research Lab inaugurated</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Mentorship Preview Section -->
+    <section class="mentorship-preview">
+        <div class="container">
+            <h2>Mentorship & Opportunities</h2>
+            <div class="preview-grid">
+                <div class="preview-section">
+                    <h3>Top Mentors Available</h3>
+                    <div class="mentor-list">
+                        <div class="mentor-item">
+                            <div class="mentor-avatar"><i class="fas fa-user"></i></div>
+                            <div class="mentor-info">
+                                <h4>Dr. Amit Singh</h4>
+                                <p>Senior Software Architect, Amazon</p>
+                            </div>
+                        </div>
+                        <div class="mentor-item">
+                            <div class="mentor-avatar"><i class="fas fa-user"></i></div>
+                            <div class="mentor-info">
+                                <h4>Neha Gupta</h4>
+                                <p>Product Manager, Meta</p>
+                            </div>
+                        </div>
+                    </div>
+                    <a href="login.html" class="btn-view-all">Login to View All</a>
+                </div>
+                <div class="preview-section">
+                    <h3>Recent Job Opportunities</h3>
+                    <div class="job-list">
+                        <div class="job-item">
+                            <h4>Software Engineer Intern</h4>
+                            <p>TechCorp Solutions • Bangalore</p>
+                        </div>
+                        <div class="job-item">
+                            <h4>Data Analyst</h4>
+                            <p>Analytics Pro • Mumbai</p>
+                        </div>
+                    </div>
+                    <a href="login.html" class="btn-view-all">Login to View All</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Enhanced Testimonials Section -->
+    <section class="testimonials">
+        <div class="container">
+            <h2>Real Experiences from Our Community</h2>
+            <div class="testimonials-slider">
+                <div class="testimonial-card active">
+                    <div class="testimonial-header">
+                        <div class="testimonial-avatar"><i class="fas fa-user"></i></div>
+                        <div class="testimonial-info">
+                            <h4>Ankit Sharma</h4>
+                            <p>Final Year Student, CSE</p>
+                        </div>
+                    </div>
+                    <div class="quote-icon">"</div>
+                    <p>I found my mentor here! The guidance helped me land my dream job at Google. The alumni network is incredibly supportive.</p>
+                    <div class="rating">⭐⭐⭐⭐⭐</div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-header">
+                        <div class="testimonial-avatar"><i class="fas fa-user"></i></div>
+                        <div class="testimonial-info">
+                            <h4>Dr. Meera Patel</h4>
+                            <p>Alumni, Batch 2010</p>
+                        </div>
+                    </div>
+                    <div class="quote-icon">"</div>
+                    <p>Helping juniors is so fulfilling. This platform makes it easy to give back and guide the next generation.</p>
+                    <div class="rating">⭐⭐⭐⭐⭐</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Photo Gallery Section -->
+    <section class="gallery-section">
+        <div class="container">
+            <h2>Moments from Our Community</h2>
+            <div class="gallery-grid">
+                <div class="gallery-item">
+                    <div class="gallery-placeholder">
+                        <i class="fas fa-users"></i>
+                        <p>Alumni Meet 2023</p>
+                    </div>
+                </div>
+                <div class="gallery-item">
+                    <div class="gallery-placeholder">
+                        <i class="fas fa-microphone"></i>
+                        <p>Tech Talk Session</p>
+                    </div>
+                </div>
+                <div class="gallery-item">
+                    <div class="gallery-placeholder">
+                        <i class="fas fa-graduation-cap"></i>
+                        <p>Graduation Ceremony</p>
+                    </div>
+                </div>
+                <div class="gallery-item">
+                    <div class="gallery-placeholder">
+                        <i class="fas fa-handshake"></i>
+                        <p>Mentorship Program</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="contact" class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Alumni Connect</h3>
+                    <p>Connecting Students, Alumni & Faculty Together</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <a href="about.html">About</a>
+                    <a href="#events">Events</a>
+                    <a href="#contact">Contact</a>
+                    <a href="signup.html">Signup</a>
+                </div>
+                <div class="footer-section">
+                    <h4>Contact Info</h4>
+                    <p><i class="fas fa-envelope"></i> info@alumniconnect.com</p>
+                    <p><i class="fas fa-phone"></i> +1 (555) 123-4567</p>
+                    <p><i class="fas fa-map-marker-alt"></i> University Campus, City</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="enhanced-logic.js"></script>
+</body>
+</html>
