@@ -83,6 +83,7 @@ const AlumniSidebar = () => {
   const menuItems = [
     { icon: Home, label: 'Dashboard', path: '/alumni-dashboard' },
     { icon: Users, label: 'Mentor Students', path: '/mentor-students' },
+    { icon: Users, label: 'Communities', path: '/communities' },
     { icon: FileText, label: 'Posts', path: '/posts' },
     { icon: Briefcase, label: 'Job Postings', path: '/job-postings' },
     { icon: MessageCircle, label: 'Messages', path: '/messages' },

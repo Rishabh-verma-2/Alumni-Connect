@@ -13,6 +13,8 @@ import { useAuth } from '../../context/AuthContext';
 import { useSidebar } from '../../context/SidebarContext';
 import { studentAPI, alumniAPI, notificationAPI } from '../../api/api';
 import toast from 'react-hot-toast';
+import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
 
 const StudentDashboard = () => {
   const { user } = useAuth();
@@ -414,8 +416,18 @@ const StudentDashboard = () => {
                 </div>
 
                 <div className="flex flex-col md:flex-row gap-6 items-center">
-                  <div className="w-24 h-24 rounded-2xl bg-white/20 backdrop-blur-md border-2 border-white/30 flex items-center justify-center text-3xl font-bold shadow-lg">
-                    {alumni.length > 0 ? getInitials(alumni[0].name) : 'AL'}
+                  <div className="w-24 h-24 rounded-2xl overflow-hidden bg-white/20 backdrop-blur-md border-2 border-white/30 flex items-center justify-center shadow-lg">
+                    {alumni.length > 0 && alumni[0].profilePicture ? (
+                      <img
+                        src={alumni[0].profilePicture}
+                        alt={alumni[0].name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <span className="text-3xl font-bold">
+                        {alumni.length > 0 ? getInitials(alumni[0].name) : 'AL'}
+                      </span>
+                    )}
                   </div>
 
                   <div className="flex-1 text-center md:text-left">
@@ -473,8 +485,16 @@ const StudentDashboard = () => {
                   filteredAlumni.map((person) => (
                     <div key={person._id} className="group flex items-center gap-4 p-4 rounded-2xl bg-white border border-slate-100 hover:border-purple-100 hover:shadow-lg hover:shadow-purple-500/5 transition-all duration-300 cursor-default">
                       <div className="relative">
-                        <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center text-lg font-bold text-slate-400 overflow-hidden transform group-hover:rotate-3 transition-transform">
-                          {getInitials(person.name)}
+                        <div className="w-14 h-14 rounded-2xl overflow-hidden bg-slate-100 flex items-center justify-center text-lg font-bold text-slate-400 transform group-hover:rotate-3 transition-transform">
+                          {person.profilePicture ? (
+                            <img
+                              src={person.profilePicture}
+                              alt={person.name}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            getInitials(person.name)
+                          )}
                         </div>
                         <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-white rounded-full flex items-center justify-center">
                           <div className="w-3 h-3 bg-emerald-500 rounded-full border border-white"></div>

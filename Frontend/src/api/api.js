@@ -211,6 +211,66 @@ export const postsAPI = {
   }),
 };
 
+// Community API calls
+export const communityAPI = {
+  // Community CRUD
+  getAllCommunities: (filters, token) => api.get('/communities', {
+    params: filters,
+    headers: token ? { Authorization: `Bearer ${token}` } : {}
+  }),
+  getCommunityById: (id, token) => api.get(`/communities/${id}`, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {}
+  }),
+  createCommunity: (communityData, token) => api.post('/communities', communityData, {
+    headers: { Authorization: `Bearer ${token}` }
+  }),
+  updateCommunity: (id, communityData, token) => api.put(`/communities/${id}`, communityData, {
+    headers: { Authorization: `Bearer ${token}` }
+  }),
+  deleteCommunity: (id, token) => api.delete(`/communities/${id}`, {
+    headers: { Authorization: `Bearer ${token}` }
+  }),
+
+  // Member management
+  joinCommunity: (id, token) => api.post(`/communities/${id}/join`, {}, {
+    headers: { Authorization: `Bearer ${token}` }
+  }),
+  leaveCommunity: (id, token) => api.post(`/communities/${id}/leave`, {}, {
+    headers: { Authorization: `Bearer ${token}` }
+  }),
+  approveMember: (id, requestUserId, token) => api.post(`/communities/${id}/approve`, { requestUserId }, {
+    headers: { Authorization: `Bearer ${token}` }
+  }),
+  removeMember: (id, memberUserId, token) => api.post(`/communities/${id}/remove`, { memberUserId }, {
+    headers: { Authorization: `Bearer ${token}` }
+  }),
+  getCommunityMembers: (id, token) => api.get(`/communities/${id}/members`, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {}
+  }),
+
+  // Community posts
+  getCommunityPosts: (id, token) => api.get(`/communities/${id}/posts`, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {}
+  }),
+  createCommunityPost: (id, postData, token) => api.post(`/communities/${id}/posts`, postData, {
+    headers: { Authorization: `Bearer ${token}` }
+  }),
+  updateCommunityPost: (id, postId, postData, token) => api.put(`/communities/${id}/posts/${postId}`, postData, {
+    headers: { Authorization: `Bearer ${token}` }
+  }),
+  deleteCommunityPost: (id, postId, token) => api.delete(`/communities/${id}/posts/${postId}`, {
+    headers: { Authorization: `Bearer ${token}` }
+  }),
+  togglePinPost: (id, postId, token) => api.post(`/communities/${id}/posts/${postId}/pin`, {}, {
+    headers: { Authorization: `Bearer ${token}` }
+  }),
+
+  // User communities
+  getUserCommunities: (userId, token) => api.get(`/communities/user/${userId}`, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {}
+  }),
+};
+
 // Test API connection
 export const testAPI = {
   ping: () => api.get('/student/test')

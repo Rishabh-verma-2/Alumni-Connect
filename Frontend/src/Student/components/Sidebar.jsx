@@ -74,6 +74,7 @@ const Sidebar = () => {
     { icon: Home, label: 'Dashboard', path: '/student-dashboard' },
     { icon: Search, label: 'Browse Alumni', path: '/browse-alumni' },
     { icon: Users, label: 'My Connections', path: '/my-connections' },
+    { icon: Users, label: 'Communities', path: '/communities' },
     { icon: MessageCircle, label: 'Messages', path: '/messages' },
     { icon: FileText, label: 'Posts', path: '/posts' },
     { icon: User, label: 'Profile', path: '/student-profile' },

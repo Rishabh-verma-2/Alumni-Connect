@@ -23,8 +23,11 @@ import Messages from './Student/pages/Messages';
 import BrowseAlumni from './Student/pages/BrowseAlumni';
 import EventsPage from './Student/pages/EventsPage';
 import EventGallery from './Student/pages/EventGallery';
+import Communities from './Student/pages/Communities';
+import CommunityDetail from './Student/pages/CommunityDetail';
 import Posts from './Shared/components/Posts';
 import AlumniDashboard from './Alumni/pages/AlumniDashboard';
+import CreateCommunity from './Alumni/pages/CreateCommunity';
 import AlumniProfile from './Alumni/pages/AlumniProfile';
 import AlumniProfileView from './Alumni/pages/AlumniProfileView';
 import AlumniList from './Alumni/pages/AlumniList';
@@ -166,6 +169,23 @@ const AppRoutes = () => {
       <Route path="/settings" element={
         <RoleBasedRoute allowedRoles={['student']}>
           <SettingsPage />
+        </RoleBasedRoute>
+      } />
+
+      {/* Community routes - accessible to both students and alumni */}
+      <Route path="/communities" element={
+        <RoleBasedRoute allowedRoles={['student', 'alumni']}>
+          <Communities />
+        </RoleBasedRoute>
+      } />
+      <Route path="/communities/:id" element={
+        <RoleBasedRoute allowedRoles={['student', 'alumni']}>
+          <CommunityDetail />
+        </RoleBasedRoute>
+      } />
+      <Route path="/communities/create" element={
+        <RoleBasedRoute allowedRoles={['alumni']}>
+          <CreateCommunity />
         </RoleBasedRoute>
       } />
 

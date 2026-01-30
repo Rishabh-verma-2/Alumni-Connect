@@ -13,6 +13,7 @@ import chatRoutes from "./routes/chatRoutes.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
 import postRoutes from "./routes/postRoutes.js";
 import uploadRoutes from "./routes/uploadRoutes.js";
+import communityRoutes from "./routes/communityRoutes.js";
 
 const app = express();
 const server = createServer(app);
@@ -45,6 +46,7 @@ app.use("/api/v1", chatRoutes);
 app.use("/api/v1", notificationRoutes);
 app.use("/api/v1", postRoutes);
 app.use("/api/v1/upload", uploadRoutes);
+app.use("/api/v1/communities", communityRoutes);
 
 // Test route
 app.get('/api/v1/test', (req, res) => {
@@ -84,7 +86,7 @@ try {
   io.on('connection', (socket) => {
     try {
       console.log('User connected:', socket.id);
-      
+
       socket.on('join', (userId) => {
         try {
           if (userId) {
@@ -95,7 +97,7 @@ try {
           console.error('Error joining room:', error);
         }
       });
-      
+
       socket.on('disconnect', () => {
         try {
           console.log('User disconnected:', socket.id);
@@ -103,16 +105,16 @@ try {
           console.error('Error on disconnect:', error);
         }
       });
-      
+
       socket.on('error', (error) => {
         console.error('Socket error:', error);
       });
-      
+
     } catch (error) {
       console.error('Socket connection error:', error);
     }
   });
-  
+
   // Handle Socket.IO errors
   io.on('error', (error) => {
     console.error('Socket.IO error:', error);
