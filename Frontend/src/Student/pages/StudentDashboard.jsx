@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom';
 import {
   Users, BookOpen, Briefcase, Calendar, Bell, Search,
   MessageCircle, TrendingUp, Settings, ArrowUp, ArrowRight,
-  Zap, Award, Code, Globe, Cpu, ChevronRight, ChevronLeft, BarChart3
+  Zap, Award, Code, Globe, Cpu, ChevronRight, ChevronLeft, BarChart3,
+  UserCheck, Star, PartyPopper, CheckCircle, Target, Crown
 } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
 import NotificationDropdown from '../components/NotificationDropdown';
@@ -22,11 +23,42 @@ const StudentDashboard = () => {
   const [studentProfile, setStudentProfile] = useState(null);
   const [statsPeriod, setStatsPeriod] = useState('week');
   const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [calendarView, setCalendarView] = useState('week'); // 'week' or 'month'
+  const [events, setEvents] = useState([
+    { id: 1, title: 'Tech Talk: AI Agents', time: '10:00 AM', location: 'Auditorium', date: new Date(), category: 'tech' },
+    { id: 2, title: 'Career Fair', time: '9:00 AM', location: 'Main Hall', date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000), category: 'career' },
+    { id: 3, title: 'Coding Workshop', time: '2:00 PM', location: 'Lab 301', date: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000), category: 'academic' }
+  ]);
 
   const [alumni, setAlumni] = useState([]);
   const [connections, setConnections] = useState([]);
+  const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [connectingIds, setConnectingIds] = useState(new Set());
+  const [showQuestionModal, setShowQuestionModal] = useState(false);
+  const [selectedAnswer, setSelectedAnswer] = useState(null);
+
+  const dailyQuestion = {
+    question: "What tech stack are you learning right now?",
+    options: ['React & Next.js', 'Python & AI', 'Mobile Dev', 'DevOps']
+  };
+
+  const [jobs] = useState([
+    { id: 1, role: 'React Developer', company: 'Google', location: 'Remote', salary: '$5-7k/mo', tag: 'Remote', skills: ['React', 'TypeScript', 'Node.js'], match: 92, saved: false },
+    { id: 2, role: 'UI/UX Designer', company: 'Airbnb', location: 'San Francisco', salary: '$4-6k/mo', tag: 'Hybrid', skills: ['Figma', 'Design Systems'], match: 78, saved: true },
+    { id: 3, role: 'Full Stack Developer', company: 'Microsoft', location: 'Remote', salary: '$6-8k/mo', tag: 'Remote', skills: ['React', 'Python', 'Azure'], match: 85, saved: false },
+    { id: 4, role: 'Frontend Engineer', company: 'Meta', location: 'New York', salary: '$5-7k/mo', tag: 'Hybrid', skills: ['React', 'GraphQL'], match: 88, saved: false }
+  ]);
+
+  const [badges] = useState([
+    { id: 1, name: 'First Connection', icon: UserCheck, color: 'text-blue-400', unlocked: true, progress: 100, description: 'Made your first connection' },
+    { id: 2, name: 'Active Networker', icon: Star, color: 'text-yellow-400', unlocked: connections.length >= 5, progress: Math.min((connections.length / 5) * 100, 100), description: 'Connect with 5 alumni' },
+    { id: 3, name: 'Event Enthusiast', icon: PartyPopper, color: 'text-pink-400', unlocked: false, progress: 33, description: 'Attend 3 events' },
+    { id: 4, name: 'Profile Complete', icon: CheckCircle, color: 'text-green-400', unlocked: true, progress: 100, description: 'Complete your profile' },
+    { id: 5, name: 'Job Hunter', icon: Briefcase, color: 'text-orange-400', unlocked: false, progress: 60, description: 'Apply to 5 jobs' },
+    { id: 6, name: 'Community Leader', icon: Crown, color: 'text-purple-400', unlocked: false, progress: 20, description: 'Get 10 connections' }
+  ]);
 
   // --- Data Fetching ---
   const fetchStudentProfile = useCallback(async () => {
@@ -132,10 +164,13 @@ const StudentDashboard = () => {
   };
 
   // Calendar Logic
+  const goToPreviousDay = () => setSelectedDate(prev => new Date(prev.getTime() - 24 * 60 * 60 * 1000));
+  const goToNextDay = () => setSelectedDate(prev => new Date(prev.getTime() + 24 * 60 * 60 * 1000));
   const goToPreviousMonth = () => setCurrentMonth(prev => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
   const goToNextMonth = () => setCurrentMonth(prev => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
   const getDaysInMonth = (date) => new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
   const getFirstDayOfMonth = (date) => new Date(date.getFullYear(), date.getMonth(), 1).getDay();
+  const handleDayClick = (date) => setSelectedDate(date);
 
   return (
     <div className="min-h-screen bg-[#F3F4F6] text-slate-800 font-sans selection:bg-purple-500/30 selection:text-purple-900">
@@ -303,14 +338,15 @@ const StudentDashboard = () => {
           </div>
         </div>
 
-        {/* BENTO STATS ROW */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
+        {/* STATS ROW - Now with 4 Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+          {/* Stats Cards */}
           {[
-            { label: 'Total Connections', value: '1,204', sub: '+12 this week', icon: Users, grad: 'from-blue-500 to-cyan-400', shadow: 'shadow-blue-500/20' },
-            { label: 'Unread Messages', value: '5', sub: '2 from recruiters', icon: MessageCircle, grad: 'from-fuchsia-500 to-pink-500', shadow: 'shadow-fuchsia-500/20' },
-            { label: 'Upcoming Events', value: '3', sub: 'Next: Tech Talk', icon: Calendar, grad: 'from-amber-400 to-orange-500', shadow: 'shadow-orange-500/20' },
+            { label: 'Total Connections', value: connections.length || '0', sub: `${connections.length > 0 ? '+' + connections.length : 'No'} connections`, icon: Users, grad: 'from-blue-500 to-cyan-400', shadow: 'shadow-blue-500/20', link: '/browse-alumni' },
+            { label: 'Unread Messages', value: messages.length || '0', sub: messages.length > 0 ? `${messages.length} new` : 'No new messages', icon: MessageCircle, grad: 'from-fuchsia-500 to-pink-500', shadow: 'shadow-fuchsia-500/20', link: '/messages' },
+            { label: 'Upcoming Events', value: events.length || '0', sub: events.length > 0 ? `Next: ${events[0]?.title}` : 'No events', icon: Calendar, grad: 'from-amber-400 to-orange-500', shadow: 'shadow-orange-500/20', link: '/events' },
           ].map((stat, i) => (
-            <div key={i} className="bg-white rounded-[1.5rem] p-5 shadow-xl shadow-slate-200/60 border border-slate-100 hover:transform hover:-translate-y-1 transition-all duration-300 group">
+            <Link key={i} to={stat.link} className="bg-white rounded-[1.5rem] p-5 shadow-xl shadow-slate-200/60 border border-slate-100 hover:transform hover:-translate-y-1 transition-all duration-300 group cursor-pointer">
               <div className="flex justify-between items-start mb-3">
                 <div className={`p-2.5 rounded-2xl bg-gradient-to-br ${stat.grad} text-white shadow-lg ${stat.shadow} group-hover:scale-110 transition-transform`}>
                   <stat.icon size={20} />
@@ -326,8 +362,36 @@ const StudentDashboard = () => {
                   <ArrowUp size={12} /> {stat.sub}
                 </p>
               </div>
-            </div>
+            </Link>
           ))}
+
+          {/* Daily Question Card - Clickable */}
+          <button
+            onClick={() => setShowQuestionModal(true)}
+            className="bg-gradient-to-br from-orange-400 to-pink-500 rounded-[1.5rem] p-5 shadow-xl shadow-orange-200/60 border border-orange-100 hover:transform hover:-translate-y-1 transition-all duration-300 group cursor-pointer text-left relative overflow-hidden"
+          >
+            <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full blur-2xl"></div>
+            <div className="relative z-10">
+              <div className="flex justify-between items-start mb-3">
+                <div className="p-2.5 rounded-2xl bg-white/20 backdrop-blur-sm text-white shadow-lg">
+                  <Zap size={20} />
+                </div>
+                <div className="bg-white/20 backdrop-blur-sm px-2 py-1 rounded-lg text-[10px] font-bold text-white">
+                  DAILY
+                </div>
+              </div>
+              <div>
+                <h3 className="text-2xl font-black text-white mb-1 tracking-tight">Quick Poll</h3>
+                <p className="text-sm font-medium text-white/90">Daily Question</p>
+                <p className="text-xs font-bold text-white/80 mt-2 line-clamp-2">
+                  {dailyQuestion.question}
+                </p>
+                <p className="text-xs font-bold text-white mt-2 flex items-center gap-1">
+                  <span>Tap to answer</span> →
+                </p>
+              </div>
+            </div>
+          </button>
         </div>
 
         {/* MAIN LAYOUT: Modern Split */}
@@ -373,79 +437,6 @@ const StudentDashboard = () => {
                     </button>
                   )}
                 </div>
-              </div>
-            </div>
-
-            {/* DAILY QUESTION */}
-            <div className="bg-white rounded-[2rem] p-6 shadow-xl shadow-slate-200/50 border border-slate-100">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="p-2 bg-gradient-to-br from-orange-400 to-pink-500 rounded-xl">
-                  <Zap size={20} className="text-white" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold text-slate-800">Daily Question</h3>
-                  <p className="text-xs text-slate-400">Share your thoughts with the community</p>
-                </div>
-              </div>
-
-              <p className="text-slate-700 font-medium mb-4">What tech stack are you learning right now?</p>
-
-              <div className="grid grid-cols-2 gap-3">
-                {['React & Next.js', 'Python & AI', 'Mobile Dev', 'DevOps'].map((option, i) => (
-                  <button
-                    key={i}
-                    className="p-3 rounded-xl border-2 border-slate-100 hover:border-purple-500 hover:bg-purple-50 transition-all text-sm font-medium text-slate-700"
-                  >
-                    {option}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* MENTOR MATCH CARD */}
-            <div className="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-[2rem] p-6 text-white relative overflow-hidden shadow-xl">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl"></div>
-
-              <div className="relative z-10">
-                <div className="flex items-center gap-2 mb-4">
-                  <Users size={20} className="text-emerald-200" />
-                  <h3 className="text-lg font-bold">Mentor Match</h3>
-                </div>
-
-                <p className="text-emerald-100 text-sm mb-4">Based on your skills and interests</p>
-
-                <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-4 mb-4">
-                  <div className="flex items-center gap-4 mb-3">
-                    <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center text-xl font-bold">
-                      {alumni.length > 1 ? getInitials(alumni[1]?.name || alumni[0]?.name) : 'SM'}
-                    </div>
-                    <div className="flex-1">
-                      <h4 className="font-bold text-lg">{alumni.length > 1 ? alumni[1]?.name || alumni[0]?.name : 'Sarah Miller'}</h4>
-                      <p className="text-emerald-100 text-sm">
-                        {alumni.length > 1 ? alumni[1]?.currentDesignation || 'Senior Engineer' : 'Senior React Developer'}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-wrap gap-2 mb-3">
-                    <span className="px-3 py-1 bg-white/20 rounded-full text-xs font-medium">React</span>
-                    <span className="px-3 py-1 bg-white/20 rounded-full text-xs font-medium">TypeScript</span>
-                    <span className="px-3 py-1 bg-white/20 rounded-full text-xs font-medium">Node.js</span>
-                  </div>
-
-                  <p className="text-white/90 text-sm italic">
-                    "Since you're learning React, I'd love to help guide your journey!"
-                  </p>
-                </div>
-
-                {alumni.length > 1 && (
-                  <button
-                    onClick={() => handleConnect(alumni[1] || alumni[0])}
-                    className="w-full py-3 bg-white text-emerald-600 font-bold rounded-xl hover:scale-105 transition-transform shadow-lg"
-                  >
-                    Request Mentorship
-                  </button>
-                )}
               </div>
             </div>
 
@@ -518,45 +509,358 @@ const StudentDashboard = () => {
               </div>
             </div>
 
-            {/* JOBS SECTION */}
+            {/* ENHANCED JOBS SECTION */}
             <div className="bg-slate-900 rounded-[2rem] p-8 text-white relative overflow-hidden">
-              {/* Dark Card decoration */}
               <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/20 rounded-full blur-3xl"></div>
 
-              <div className="relative z-10 flex justify-between items-center mb-6">
-                <div>
-                  <h3 className="text-xl font-bold">Recommended Jobs</h3>
-                  <p className="text-slate-400 text-sm">Curated for {user?.role || 'students'}</p>
+              <div className="relative z-10">
+                <div className="flex justify-between items-center mb-6">
+                  <div>
+                    <h3 className="text-xl font-bold">Recommended Jobs</h3>
+                    <p className="text-slate-400 text-sm">Based on your skills & interests</p>
+                  </div>
+                  <div className="flex gap-2">
+                    <button className="p-2 bg-white/10 hover:bg-white/20 rounded-xl backdrop-blur-md transition-colors">
+                      <Briefcase size={18} className="text-emerald-400" />
+                    </button>
+                    <Link to="/jobs" className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-xl text-sm font-bold transition-colors">
+                      View All
+                    </Link>
+                  </div>
                 </div>
-                <div className="p-2 bg-white/10 rounded-xl backdrop-blur-md">
-                  <Briefcase size={20} className="text-emerald-400" />
+
+                <div className="space-y-3">
+                  {jobs.slice(0, 3).map((job) => (
+                    <div key={job.id} className="bg-white/5 border border-white/10 p-5 rounded-2xl hover:bg-white/10 transition-all group">
+                      <div className="flex justify-between items-start mb-3">
+                        <div className="flex items-start gap-3">
+                          <div className="bg-white/20 p-3 rounded-xl text-xl font-bold flex-shrink-0">
+                            {job.company[0]}
+                          </div>
+                          <div>
+                            <h4 className="font-bold text-lg mb-1">{job.role}</h4>
+                            <p className="text-sm text-slate-400">{job.company} • {job.location}</p>
+                          </div>
+                        </div>
+                        <div className="flex flex-col items-end gap-2">
+                          <span className="text-[10px] font-bold bg-emerald-500/20 text-emerald-400 px-2 py-1 rounded-full uppercase">
+                            {job.tag}
+                          </span>
+                          <div className={`text-xs font-bold px-2 py-1 rounded-full ${job.match >= 85 ? 'bg-green-500/20 text-green-400' :
+                            job.match >= 70 ? 'bg-yellow-500/20 text-yellow-400' :
+                              'bg-slate-500/20 text-slate-400'
+                            }`}>
+                            {job.match}% Match
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-wrap gap-2 mb-3">
+                        {job.skills.map((skill, i) => (
+                          <span key={i} className="text-xs bg-white/10 px-2 py-1 rounded-md">
+                            {skill}
+                          </span>
+                        ))}
+                      </div>
+
+                      <div className="flex justify-between items-center">
+                        <div className="text-lg font-bold text-white">{job.salary}</div>
+                        <div className="flex gap-2">
+                          <button className={`p-2 rounded-lg transition-all ${job.saved ? 'bg-yellow-500/20 text-yellow-400' : 'bg-white/10 text-slate-400 hover:bg-white/20'
+                            }`}>
+                            <svg className="w-4 h-4" fill={job.saved ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                            </svg>
+                          </button>
+                          <button className="px-4 py-2 bg-white text-slate-900 rounded-lg text-sm font-bold hover:scale-105 transition-transform">
+                            Apply
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
+            </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {[
-                  { role: 'React Developer', company: 'Google', salary: '$5k/mo', tag: 'Remote' },
-                  { role: 'UI/UX Designer', company: 'Airbnb', salary: '$4k/mo', tag: 'Hybrid' }
-                ].map((job, i) => (
-                  <div key={i} className="bg-white/5 border border-white/10 p-4 rounded-2xl hover:bg-white/10 transition-colors cursor-pointer">
-                    <div className="flex justify-between items-start mb-2">
-                      <div className="bg-white/20 p-2 rounded-lg text-lg font-bold">
-                        {job.company[0]}
+            {/* ACHIEVEMENTS & BADGES - ENHANCED */}
+            <div className="bg-gradient-to-br from-violet-500 via-purple-600 to-indigo-700 rounded-[2rem] p-8 text-white relative overflow-hidden">
+              {/* Decorative elements */}
+              <div className="absolute top-0 right-0 w-48 h-48 bg-yellow-400/20 rounded-full blur-3xl"></div>
+              <div className="absolute bottom-0 left-0 w-40 h-40 bg-pink-400/20 rounded-full blur-3xl"></div>
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-white/5 rounded-full blur-3xl"></div>
+
+              <div className="relative z-10">
+                {/* Header with Stats */}
+                <div className="mb-8">
+                  <div className="flex justify-between items-start mb-4">
+                    <div>
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="p-2 bg-yellow-400/20 rounded-xl">
+                          <svg className="w-6 h-6 text-yellow-300" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                          </svg>
+                        </div>
+                        <h3 className="text-2xl font-black">Achievements</h3>
                       </div>
-                      <span className="text-[10px] font-bold bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full uppercase">{job.tag}</span>
+                      <p className="text-purple-200 text-sm">Level up your profile & earn rewards</p>
                     </div>
-                    <h4 className="font-bold text-lg mb-0.5">{job.role}</h4>
-                    <p className="text-sm text-slate-400 mb-3">{job.company}</p>
-                    <div className="text-sm font-medium text-white">{job.salary}</div>
+                    <div className="bg-white/20 backdrop-blur-md px-4 py-2 rounded-2xl border border-white/30">
+                      <div className="text-2xl font-black text-yellow-300">{badges.filter(b => b.unlocked).length}</div>
+                      <div className="text-xs font-bold text-purple-100">/{badges.length} Badges</div>
+                    </div>
                   </div>
-                ))}
+
+                  {/* Overall Progress Bar */}
+                  <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-sm font-bold">Overall Progress</span>
+                      <span className="text-sm font-bold text-yellow-300">{Math.round((badges.filter(b => b.unlocked).length / badges.length) * 100)}%</span>
+                    </div>
+                    <div className="h-3 bg-white/20 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-gradient-to-r from-yellow-400 via-orange-400 to-pink-400 rounded-full transition-all duration-1000 shadow-lg shadow-yellow-500/50"
+                        style={{ width: `${(badges.filter(b => b.unlocked).length / badges.length) * 100}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Badges Grid */}
+                <div className="mb-6">
+                  <h4 className="text-sm font-bold text-purple-200 mb-4 flex items-center gap-2">
+                    <span className="w-1 h-4 bg-yellow-400 rounded-full"></span>
+                    Your Badges
+                  </h4>
+                  <div className="grid grid-cols-3 gap-4">
+                    {badges.map((badge) => (
+                      <div
+                        key={badge.id}
+                        className={`relative group cursor-pointer transition-all duration-300 ${badge.unlocked
+                          ? 'hover:scale-110'
+                          : 'opacity-60 hover:opacity-80'
+                          }`}
+                      >
+                        <div className={`bg-white/10 backdrop-blur-md rounded-2xl p-5 border-2 transition-all ${badge.unlocked
+                          ? 'border-yellow-400/50 shadow-lg shadow-yellow-500/20'
+                          : 'border-white/20'
+                          }`}>
+                          {/* Badge Icon */}
+                          <div className="relative mb-3">
+                            <div className={`flex items-center justify-center mb-2 transition-transform ${badge.unlocked ? 'group-hover:scale-125 group-hover:rotate-12' : 'opacity-50'
+                              }`}>
+                              <badge.icon
+                                size={48}
+                                className={`${badge.unlocked ? badge.color : 'text-purple-300'} transition-colors`}
+                                strokeWidth={2}
+                              />
+                            </div>
+                            {badge.unlocked && (
+                              <div className="absolute -top-1 -right-1 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center shadow-lg">
+                                <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                </svg>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Badge Name */}
+                          <p className={`text-xs font-bold mb-2 line-clamp-2 ${badge.unlocked ? 'text-white' : 'text-purple-200'
+                            }`}>
+                            {badge.name}
+                          </p>
+
+                          {/* Progress Bar for Locked Badges */}
+                          {!badge.unlocked && (
+                            <div>
+                              <div className="h-1.5 bg-white/20 rounded-full overflow-hidden mb-1">
+                                <div
+                                  className="h-full bg-gradient-to-r from-purple-400 to-pink-400 rounded-full transition-all duration-500"
+                                  style={{ width: `${badge.progress}%` }}
+                                ></div>
+                              </div>
+                              <p className="text-[9px] text-purple-200">{Math.round(badge.progress)}% complete</p>
+                            </div>
+                          )}
+
+                          {badge.unlocked && (
+                            <p className="text-[9px] text-yellow-300 font-bold">✓ Unlocked</p>
+                          )}
+                        </div>
+
+                        {/* Tooltip on Hover */}
+                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-slate-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-20">
+                          {badge.description}
+                          <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900"></div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Call to Action */}
+                <div className="bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/20">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className="p-3 bg-white/20 rounded-2xl">
+                        <Target size={32} className="text-yellow-300" strokeWidth={2} />
+                      </div>
+                      <div>
+                        <p className="text-sm font-bold mb-1">Keep Building Your Profile!</p>
+                        <p className="text-xs text-purple-200">Connect, attend events, and unlock more badges</p>
+                      </div>
+                    </div>
+                    <button className="px-5 py-2.5 bg-white text-purple-600 rounded-xl font-bold text-sm hover:scale-105 transition-transform shadow-lg">
+                      View All
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
 
           </div>
 
-          {/* RIGHT COL: Tools & Calendar */}
+          {/* RIGHT COL: Calendar First, Then Tools */}
           <div className="space-y-8">
+
+            {/* FUNCTIONAL CALENDAR */}
+            <div className="bg-white rounded-[2rem] p-6 shadow-xl shadow-slate-200/50 border border-slate-100">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-lg font-bold text-slate-800">Calendar</h3>
+                <div className="flex gap-2">
+                  <button onClick={calendarView === 'week' ? goToPreviousDay : goToPreviousMonth} className="p-1 hover:bg-slate-100 rounded-full transition-colors">
+                    <ChevronLeft size={18} />
+                  </button>
+                  <button onClick={calendarView === 'week' ? goToNextDay : goToNextMonth} className="p-1 hover:bg-slate-100 rounded-full transition-colors">
+                    <ChevronRight size={18} />
+                  </button>
+                </div>
+              </div>
+
+              <div className="mb-4">
+                <span className="text-sm font-bold text-slate-400 uppercase tracking-widest block">
+                  {calendarView === 'week'
+                    ? selectedDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+                    : currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                </span>
+              </div>
+
+              {/* View Toggle */}
+              <div className="bg-slate-100 rounded-lg p-1 flex gap-1 mb-4">
+                <button
+                  onClick={() => setCalendarView('week')}
+                  className={`flex-1 px-3 py-1.5 text-xs font-bold rounded transition-all ${calendarView === 'week' ? 'bg-slate-800 text-white' : 'text-slate-600 hover:bg-slate-200'}`}
+                >
+                  Week
+                </button>
+                <button
+                  onClick={() => setCalendarView('month')}
+                  className={`flex-1 px-3 py-1.5 text-xs font-bold rounded transition-all ${calendarView === 'month' ? 'bg-slate-800 text-white' : 'text-slate-600 hover:bg-slate-200'}`}
+                >
+                  Month
+                </button>
+              </div>
+
+              {calendarView === 'week' ? (
+                // Week View - Full Week Starting from Sunday
+                <div className="grid grid-cols-7 gap-1.5 py-2">
+                  {[...Array(7)].map((_, i) => {
+                    const date = new Date(selectedDate);
+                    date.setDate(selectedDate.getDate() - selectedDate.getDay() + i);
+                    const isSelected = date.toDateString() === selectedDate.toDateString();
+                    const dayEvents = events.filter(e => e.date.toDateString() === date.toDateString());
+                    return (
+                      <button
+                        key={i}
+                        onClick={() => handleDayClick(date)}
+                        className={`rounded-2xl flex flex-col items-center justify-center gap-1 py-3 transition-all ${isSelected ? 'bg-slate-900 text-white shadow-lg shadow-slate-900/40' : 'bg-slate-50 text-slate-400 hover:bg-slate-100 border border-slate-100'}`}
+                      >
+                        <span className="text-[10px] font-bold uppercase">{date.toLocaleDateString('en-US', { weekday: 'short' }).slice(0, 2)}</span>
+                        <span className={`text-lg font-bold ${isSelected ? 'text-white' : 'text-slate-800'}`}>{date.getDate()}</span>
+                        {dayEvents.length > 0 && <div className="w-1 h-1 bg-blue-500 rounded-full"></div>}
+                      </button>
+                    )
+                  })}
+                </div>
+              ) : (
+                // Month Grid View - Clickable Days
+                <div>
+                  <div className="grid grid-cols-7 gap-2 mb-3">
+                    {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map((day) => (
+                      <div key={day} className="text-center text-xs font-bold text-slate-400">{day}</div>
+                    ))}
+                  </div>
+                  <div className="grid grid-cols-7 gap-2">
+                    {[...Array(getDaysInMonth(currentMonth) + getFirstDayOfMonth(currentMonth))].map((_, i) => {
+                      const dayNumber = i - getFirstDayOfMonth(currentMonth) + 1;
+                      const isValidDay = dayNumber > 0 && dayNumber <= getDaysInMonth(currentMonth);
+                      const date = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), dayNumber);
+                      const isSelected = isValidDay && date.toDateString() === selectedDate.toDateString();
+                      const dayEvents = isValidDay ? events.filter(e => e.date.toDateString() === date.toDateString()) : [];
+
+                      return (
+                        <button
+                          key={i}
+                          onClick={() => isValidDay && handleDayClick(date)}
+                          disabled={!isValidDay}
+                          className={`aspect-square rounded-lg flex flex-col items-center justify-center text-sm transition-all ${isValidDay
+                            ? isSelected
+                              ? 'bg-slate-900 text-white font-bold shadow-lg'
+                              : 'hover:bg-slate-100 cursor-pointer text-slate-700'
+                            : 'cursor-default'
+                            }`}
+                        >
+                          {isValidDay && (
+                            <>
+                              <span className="mb-0.5">{dayNumber}</span>
+                              {dayEvents.length > 0 && <div className="w-1 h-1 bg-blue-500 rounded-full"></div>}
+                            </>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Upcoming Events for Selected Date */}
+              <div className="mt-6">
+                <div className="flex justify-between items-center mb-3">
+                  <h4 className="text-sm font-bold text-slate-700">
+                    {selectedDate.toDateString() === new Date().toDateString()
+                      ? "Today's Events"
+                      : `Events on ${selectedDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`}
+                  </h4>
+                  <button className="text-xs font-bold text-purple-600 hover:text-purple-700">+ Add</button>
+                </div>
+                <div className="space-y-2">
+                  {events.filter(e => e.date.toDateString() === selectedDate.toDateString()).map((event) => {
+                    const categoryColors = {
+                      tech: { bg: 'bg-purple-50', border: 'border-purple-500', text: 'text-purple-900', subtext: 'text-purple-600' },
+                      career: { bg: 'bg-green-50', border: 'border-green-500', text: 'text-green-900', subtext: 'text-green-600' },
+                      academic: { bg: 'bg-blue-50', border: 'border-blue-500', text: 'text-blue-900', subtext: 'text-blue-600' },
+                      social: { bg: 'bg-orange-50', border: 'border-orange-500', text: 'text-orange-900', subtext: 'text-orange-600' }
+                    };
+                    const colors = categoryColors[event.category] || categoryColors.tech;
+
+                    return (
+                      <div key={event.id} className={`p-3 ${colors.bg} rounded-xl border-l-4 ${colors.border} flex justify-between items-center hover:scale-[1.02] transition-transform cursor-pointer`}>
+                        <div>
+                          <p className={`text-xs font-bold ${colors.text}`}>{event.title}</p>
+                          <p className={`text-[10px] font-medium ${colors.subtext}`}>{event.time} • {event.location}</p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                  {events.filter(e => e.date.toDateString() === selectedDate.toDateString()).length === 0 && (
+                    <div className="text-center py-6 text-slate-400">
+                      <Calendar size={32} className="mx-auto mb-2 opacity-50" />
+                      <p className="text-sm">No events scheduled</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
 
             {/* CAREER PATH VISUALIZER */}
             <div className="bg-gradient-to-br from-cyan-500 to-blue-600 rounded-[2rem] p-6 text-white shadow-xl relative overflow-hidden">
@@ -616,54 +920,82 @@ const StudentDashboard = () => {
               </div>
             </div>
 
-            {/* Tech Calendar */}
-            <div className="bg-white rounded-[2rem] p-6 shadow-xl shadow-slate-200/50 border border-slate-100">
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-lg font-bold text-slate-800">Calendar</h3>
-                <div className="flex gap-2">
-                  <button onClick={goToPreviousMonth} className="p-1 hover:bg-slate-100 rounded-full"><ChevronLeft size={18} /></button>
-                  <button onClick={goToNextMonth} className="p-1 hover:bg-slate-100 rounded-full"><ChevronRight size={18} /></button>
-                </div>
-              </div>
-
-              <div className="mb-4">
-                <span className="text-3xl font-black text-slate-800 block">
-                  {currentMonth.getDate()}
-                </span>
-                <span className="text-sm font-bold text-slate-400 uppercase tracking-widest">
-                  {currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
-                </span>
-              </div>
-
-              <div className="flex gap-2 pb-2 overflow-x-auto scrollbar-hide py-2">
-                {[...Array(7)].map((_, i) => {
-                  const date = new Date();
-                  date.setDate(date.getDate() + i);
-                  const isActive = i === 0;
-                  return (
-                    <div key={i} className={`flex-shrink-0 w-12 h-20 rounded-2xl flex flex-col items-center justify-center gap-1 ${isActive ? 'bg-slate-900 text-white shadow-lg shadow-slate-900/40' : 'bg-slate-50 text-slate-400 border border-slate-100'}`}>
-                      <span className="text-[10px] font-bold uppercase">{date.toLocaleDateString('en-US', { weekday: 'short' }).slice(0, 2)}</span>
-                      <span className={`text-lg font-bold ${isActive ? 'text-white' : 'text-slate-800'}`}>{date.getDate()}</span>
-                      {i === 2 && <div className="w-1 h-1 bg-red-500 rounded-full"></div>}
-                    </div>
-                  )
-                })}
-              </div>
-
-              <div className="mt-4 space-y-3">
-                <div className="p-3 bg-purple-50 rounded-xl border-l-4 border-purple-500 flex justify-between items-center">
-                  <div>
-                    <p className="text-xs font-bold text-purple-900">Tech Talk: AI Agents</p>
-                    <p className="text-[10px] font-medium text-purple-600">10:00 AM • Auditorium</p>
-                  </div>
-                  <span className="text-xs font-bold bg-white text-purple-600 px-2 py-1 rounded-md">TODAY</span>
-                </div>
-              </div>
-            </div>
 
           </div>
         </div>
       </div>
+
+      {/* DAILY QUESTION MODAL */}
+      {showQuestionModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={() => setShowQuestionModal(false)}>
+          <div className="bg-white rounded-[2rem] p-8 max-w-md w-full shadow-2xl animate-scale-in" onClick={(e) => e.stopPropagation()}>
+            {/* Header */}
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <div className="p-3 bg-gradient-to-br from-orange-400 to-pink-500 rounded-2xl">
+                  <Zap size={24} className="text-white" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-slate-800">Daily Question</h3>
+                  <p className="text-sm text-slate-400">Share your thoughts</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowQuestionModal(false)}
+                className="p-2 hover:bg-slate-100 rounded-full transition-colors"
+              >
+                <svg className="w-6 h-6 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Question */}
+            <div className="mb-6">
+              <p className="text-lg font-semibold text-slate-700 mb-1">{dailyQuestion.question}</p>
+              <p className="text-xs text-slate-400">Pick the option that best describes you</p>
+            </div>
+
+            {/* Options */}
+            <div className="grid grid-cols-2 gap-3 mb-6">
+              {dailyQuestion.options.map((option, i) => (
+                <button
+                  key={i}
+                  onClick={() => setSelectedAnswer(option)}
+                  className={`p-4 rounded-xl border-2 transition-all text-sm font-medium ${selectedAnswer === option
+                    ? 'border-orange-500 bg-orange-50 text-orange-700'
+                    : 'border-slate-200 hover:border-orange-300 hover:bg-orange-50/50 text-slate-700'
+                    }`}
+                >
+                  {option}
+                </button>
+              ))}
+            </div>
+
+            {/* Submit Button */}
+            <button
+              onClick={() => {
+                if (selectedAnswer) {
+                  toast.success(`You selected: ${selectedAnswer}`);
+                  setShowQuestionModal(false);
+                  setSelectedAnswer(null);
+                }
+              }}
+              disabled={!selectedAnswer}
+              className={`w-full py-3 rounded-xl font-bold text-white transition-all ${selectedAnswer
+                ? 'bg-gradient-to-br from-orange-400 to-pink-500 hover:scale-105 shadow-lg shadow-orange-500/30'
+                : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                }`}
+            >
+              Submit Answer
+            </button>
+
+            <p className="text-xs text-slate-400 text-center mt-4">
+              {selectedAnswer ? 'Click submit to save your answer' : 'Select an option to continue'}
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

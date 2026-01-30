@@ -12,6 +12,7 @@ import toast from 'react-hot-toast';
 const Sidebar = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [profilePicture, setProfilePicture] = useState('');
+  const [studentName, setStudentName] = useState('');
   const [unreadCount, setUnreadCount] = useState(0);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
@@ -20,15 +21,18 @@ const Sidebar = () => {
   const { isSidebarCollapsed, toggleSidebar } = useSidebar();
 
   useEffect(() => {
-    const fetchProfilePicture = async () => {
+    const fetchProfileData = async () => {
       if (user?._id && !profilePicture) {
         try {
           const token = localStorage.getItem('token');
           if (!token) return;
           const response = await studentAPI.getProfile(user._id, token);
-          setProfilePicture(response.data.profilePicture || '');
+          const profileData = response.data?.data || response.data;
+          setProfilePicture(profileData.profilePicture || '');
+          setStudentName(profileData.name || user.username || 'User');
         } catch (error) {
-          console.error('Error fetching profile picture:', error);
+          console.error('Error fetching profile data:', error);
+          setStudentName(user?.username || 'User');
         }
       }
     };
@@ -48,13 +52,13 @@ const Sidebar = () => {
       }
     };
 
-    fetchProfilePicture();
+    fetchProfileData();
     fetchUnreadCount();
 
     // Poll unread count
     const interval = setInterval(fetchUnreadCount, 30000);
     return () => clearInterval(interval);
-  }, [user?._id, profilePicture]);
+  }, [user?._id, profilePicture, user?.username]);
 
   const handleLogout = async () => {
     try {
@@ -195,7 +199,7 @@ const Sidebar = () => {
                 ) : (
                   <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-indigo-100 to-purple-100 flex items-center justify-center border-2 border-white shadow-sm">
                     <span className="text-xs font-bold text-indigo-600">
-                      {user?.name?.[0] || user?.username?.[0] || 'U'}
+                      {studentName?.[0]?.toUpperCase() || user?.username?.[0]?.toUpperCase() || 'U'}
                     </span>
                   </div>
                 )}
@@ -205,8 +209,8 @@ const Sidebar = () => {
               {!isSidebarCollapsed && (
                 <>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold text-slate-700 truncate">{user?.name || 'User'}</p>
-                    <p className="text-xs text-slate-400 truncate">{user?.role || 'Student'}</p>
+                    <p className="text-sm font-bold text-slate-700 truncate">{studentName || user?.username || 'User'}</p>
+                    <p className="text-xs text-slate-400 truncate">{user?.role || 'student'}</p>
                   </div>
                   <ChevronDown size={14} className={`text-slate-400 transition-transform ${showDropdown ? 'rotate-180' : ''}`} />
                 </>
