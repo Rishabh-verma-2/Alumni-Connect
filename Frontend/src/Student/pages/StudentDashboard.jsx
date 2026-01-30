@@ -3,10 +3,11 @@ import { Link } from 'react-router-dom';
 import {
   Users, BookOpen, Briefcase, Calendar, Bell, Search,
   MessageCircle, TrendingUp, Settings, ArrowUp, ArrowRight,
-  Zap, Award, Code, Globe, Cpu, ChevronRight, ChevronLeft
+  Zap, Award, Code, Globe, Cpu, ChevronRight, ChevronLeft, BarChart3
 } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
 import NotificationDropdown from '../components/NotificationDropdown';
+import Typewriter from 'typewriter-effect';
 import { useAuth } from '../../context/AuthContext';
 import { useSidebar } from '../../context/SidebarContext';
 import { studentAPI, alumniAPI, notificationAPI } from '../../api/api';
@@ -182,56 +183,120 @@ const StudentDashboard = () => {
         </div>
 
         {/* NEW HERO: Vibrant Tech Card */}
-        <div className="relative rounded-3xl overflow-hidden mb-8 shadow-2xl shadow-purple-500/20 group">
-          <div className="absolute inset-0 bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600"></div>
+        <div className="relative rounded-3xl overflow-hidden mb-8 shadow-2xl shadow-purple-500/20 group hover:shadow-purple-500/40 transition-shadow duration-500">
+          <div className="absolute inset-0 bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 animate-gradient-x"></div>
 
           {/* Decorative Mesh Circles */}
-          <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl transform translate-x-1/2 -translate-y-1/2"></div>
-          <div className="absolute bottom-0 left-20 w-40 h-40 bg-blue-500/30 rounded-full blur-2xl"></div>
+          <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl transform translate-x-1/2 -translate-y-1/2 animate-pulse-slow"></div>
+          <div className="absolute bottom-0 left-20 w-40 h-40 bg-blue-500/30 rounded-full blur-2xl animate-float-delayed"></div>
           <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay"></div>
 
           <div className="relative z-10 p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="max-w-lg">
+            <div className="max-w-xl">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-white text-[10px] font-medium mb-3 backdrop-blur-sm">
                 <Zap size={10} className="text-yellow-300" />
                 <span>Version 2.0 Live</span>
               </div>
-              <h2 className="text-2xl md:text-4xl font-black text-white mb-3 tracking-tight leading-tight">
+
+              <h2 className="text-3xl md:text-5xl font-black text-white mb-4 tracking-tight leading-tight">
                 Level Up Your <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 to-pink-200">Career Network</span>
+                <span className="text-yellow-200">
+                  <Typewriter
+                    options={{
+                      strings: ['Career Network', 'Tech Skills', 'Future Opportunities'],
+                      autoStart: true,
+                      loop: true,
+                      deleteSpeed: 50,
+                      delay: 80,
+                    }}
+                  />
+                </span>
               </h2>
-              <p className="text-purple-100 text-sm md:text-base mb-6 max-w-sm leading-relaxed">
-                Connect with over 5,000 alumni. Find mentors, get referrals, and unlock your potential.
+
+              <p className="text-purple-100 text-sm md:text-base mb-6 max-w-sm leading-relaxed border-l-2 border-purple-400/50 pl-4">
+                Connect with over 5,000 alumni. Find mentors, get referrals, and unlock your potential in the tech world.
               </p>
+
               <div className="flex flex-wrap gap-3">
-                <Link to="/browse-alumni" className="px-5 py-2.5 bg-white text-purple-700 font-bold text-sm rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transition-all flex items-center gap-2">
-                  Explore Network <ArrowRight size={16} />
+                <Link to="/browse-alumni" className="px-6 py-3 bg-white text-purple-700 font-bold text-sm rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transition-all flex items-center gap-2 group/btn">
+                  Explore Network <ArrowRight size={16} className="group-hover/btn:translate-x-1 transition-transform" />
                 </Link>
-                <Link to="/profile" className="px-5 py-2.5 bg-purple-800/40 text-white font-bold text-sm rounded-xl border border-white/10 hover:bg-purple-800/60 backdrop-blur-md transition-all">
+                <Link to="/profile" className="px-6 py-3 bg-purple-800/40 text-white font-bold text-sm rounded-xl border border-white/10 hover:bg-purple-800/60 backdrop-blur-md transition-all hover:border-white/30">
                   Update Profile
                 </Link>
               </div>
             </div>
 
             {/* 3D-ish Floating Element */}
-            <div className="hidden md:block relative animate-float group perspective-1000">
-              <div className="w-72 h-auto min-h-[180px] bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-6 transform rotate-6 group-hover:rotate-0 group-hover:scale-105 transition-all duration-500 ease-out shadow-2xl flex flex-col items-center justify-center text-center cursor-pointer hover:shadow-purple-500/20">
-                <div className="w-20 h-20 rounded-full bg-white/20 p-1 mb-4 shadow-inner">
+            <div className="hidden md:block relative perspective-1000 w-80 h-64 flex items-center justify-center">
+              {/* Orbiting Icons Container */}
+              <div className="absolute inset-0 flex items-center justify-center">
+                {/* Icon 1 - Orbiting Clockwise */}
+                <div className="absolute" style={{ animation: 'orbit 15s linear infinite' }}>
+                  <div className="bg-gradient-to-br from-emerald-400 to-emerald-600 p-3 rounded-2xl shadow-xl">
+                    <TrendingUp size={20} className="text-white" />
+                  </div>
+                </div>
+
+                {/* Icon 2 - Orbiting Clockwise (delayed) */}
+                <div className="absolute" style={{ animation: 'orbit 15s linear infinite', animationDelay: '-5s' }}>
+                  <div className="bg-gradient-to-br from-pink-400 to-pink-600 p-3 rounded-2xl shadow-xl">
+                    <MessageCircle size={20} className="text-white" />
+                  </div>
+                </div>
+
+                {/* Icon 3 - Orbiting Counter-clockwise */}
+                <div className="absolute" style={{ animation: 'orbit-reverse 12s linear infinite' }}>
+                  <div className="bg-gradient-to-br from-yellow-400 to-yellow-600 p-3 rounded-2xl shadow-xl">
+                    <Award size={20} className="text-white" />
+                  </div>
+                </div>
+
+                {/* Icon 4 - Orbiting Clockwise (slower) */}
+                <div className="absolute" style={{ animation: 'orbit 18s linear infinite', animationDelay: '-8s' }}>
+                  <div className="bg-gradient-to-br from-blue-400 to-blue-600 p-3 rounded-2xl shadow-xl">
+                    <Code size={20} className="text-white" />
+                  </div>
+                </div>
+
+                {/* Icon 5 - Orbiting Counter-clockwise (faster) */}
+                <div className="absolute" style={{ animation: 'orbit-reverse 10s linear infinite', animationDelay: '-3s' }}>
+                  <div className="bg-gradient-to-br from-purple-400 to-purple-600 p-3 rounded-2xl shadow-xl">
+                    <Briefcase size={20} className="text-white" />
+                  </div>
+                </div>
+
+                {/* Icon 6 - Orbiting Clockwise (medium speed) */}
+                <div className="absolute" style={{ animation: 'orbit 13s linear infinite', animationDelay: '-10s' }}>
+                  <div className="bg-gradient-to-br from-orange-400 to-red-500 p-3 rounded-2xl shadow-xl">
+                    <Zap size={20} className="text-white" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Main Profile Card */}
+              <div className="w-72 relative bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-6 transform rotate-6 group-hover:rotate-0 group-hover:scale-105 transition-all duration-500 ease-out shadow-2xl flex flex-col items-center justify-center text-center cursor-pointer hover:shadow-purple-500/20 z-10">
+                <div className="w-24 h-24 rounded-full bg-white/20 p-1.5 mb-4 shadow-inner relative">
                   {displayImage ? (
-                    <img src={displayImage} alt="Profile" className="w-full h-full rounded-full object-cover" />
+                    <img src={displayImage} alt="Profile" className="w-full h-full rounded-full object-cover border-2 border-white/50" />
                   ) : (
-                    <div className="w-full h-full rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-white font-bold text-2xl">
+                    <div className="w-full h-full rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-white font-bold text-3xl shadow-inner">
                       {getInitials(displayName)}
                     </div>
                   )}
+                  <div className="absolute bottom-1 right-1 w-6 h-6 bg-green-500 border-4 border-purple-600 rounded-full"></div>
                 </div>
+
                 <div>
-                  <h3 className="text-white font-bold text-lg tracking-wide mb-1 shadow-black/10 drop-shadow-md">
+                  <h3 className="text-white font-bold text-xl tracking-wide mb-1 shadow-black/10 drop-shadow-md">
                     {displayName}
                   </h3>
-                  <p className="text-purple-100 text-xs font-mono bg-white/10 px-3 py-1 rounded-full inline-block border border-white/10">
-                    {displayId}
-                  </p>
+                  <div className="flex items-center justify-center gap-2 mt-2">
+                    <span className="text-purple-100 text-xs font-mono bg-white/10 px-3 py-1 rounded-full border border-white/10 backdrop-blur-md">
+                      {displayId}
+                    </span>
+                    <span className="text-xs font-bold bg-gradient-to-r from-amber-300 to-orange-400 text-white px-2 py-0.5 rounded-md shadow-sm">PRO</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -271,12 +336,125 @@ const StudentDashboard = () => {
           {/* LEFT: Feed (2/3) */}
           <div className="lg:col-span-2 space-y-8">
 
-            {/* SEARCH & ALUMNI */}
+            {/* ALUMNI SPOTLIGHT */}
+            <div className="bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 rounded-[2rem] p-8 text-white relative overflow-hidden shadow-xl">
+              <div className="absolute top-0 left-0 w-full h-full opacity-10">
+                <div className="absolute top-10 right-10 w-40 h-40 bg-white rounded-full blur-3xl"></div>
+                <div className="absolute bottom-10 left-10 w-32 h-32 bg-yellow-300 rounded-full blur-2xl"></div>
+              </div>
+
+              <div className="relative z-10">
+                <div className="flex items-center gap-2 mb-4">
+                  <Award size={20} className="text-yellow-300" />
+                  <h3 className="text-xl font-bold">Alumni Spotlight</h3>
+                </div>
+
+                <div className="flex flex-col md:flex-row gap-6 items-center">
+                  <div className="w-24 h-24 rounded-2xl bg-white/20 backdrop-blur-md border-2 border-white/30 flex items-center justify-center text-3xl font-bold shadow-lg">
+                    {alumni.length > 0 ? getInitials(alumni[0].name) : 'AL'}
+                  </div>
+
+                  <div className="flex-1 text-center md:text-left">
+                    <h4 className="text-2xl font-black mb-1">{alumni.length > 0 ? alumni[0].name : 'Amazing Alumni'}</h4>
+                    <p className="text-purple-100 font-medium mb-3">
+                      {alumni.length > 0 ? `${alumni[0].currentDesignation} at ${alumni[0].currentCompany}` : 'Senior Engineer at Tech Corp'}
+                    </p>
+                    <p className="text-sm text-white/90 italic bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                      "Never stop learning. The tech industry rewards curiosity and persistence more than anything else."
+                    </p>
+                  </div>
+
+                  {alumni.length > 0 && (
+                    <button
+                      onClick={() => handleConnect(alumni[0])}
+                      className="px-6 py-3 bg-white text-purple-600 font-bold rounded-xl hover:scale-105 transition-transform shadow-lg"
+                    >
+                      Connect
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* DAILY QUESTION */}
+            <div className="bg-white rounded-[2rem] p-6 shadow-xl shadow-slate-200/50 border border-slate-100">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2 bg-gradient-to-br from-orange-400 to-pink-500 rounded-xl">
+                  <Zap size={20} className="text-white" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-slate-800">Daily Question</h3>
+                  <p className="text-xs text-slate-400">Share your thoughts with the community</p>
+                </div>
+              </div>
+
+              <p className="text-slate-700 font-medium mb-4">What tech stack are you learning right now?</p>
+
+              <div className="grid grid-cols-2 gap-3">
+                {['React & Next.js', 'Python & AI', 'Mobile Dev', 'DevOps'].map((option, i) => (
+                  <button
+                    key={i}
+                    className="p-3 rounded-xl border-2 border-slate-100 hover:border-purple-500 hover:bg-purple-50 transition-all text-sm font-medium text-slate-700"
+                  >
+                    {option}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* MENTOR MATCH CARD */}
+            <div className="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-[2rem] p-6 text-white relative overflow-hidden shadow-xl">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl"></div>
+
+              <div className="relative z-10">
+                <div className="flex items-center gap-2 mb-4">
+                  <Users size={20} className="text-emerald-200" />
+                  <h3 className="text-lg font-bold">Mentor Match</h3>
+                </div>
+
+                <p className="text-emerald-100 text-sm mb-4">Based on your skills and interests</p>
+
+                <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-4 mb-4">
+                  <div className="flex items-center gap-4 mb-3">
+                    <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center text-xl font-bold">
+                      {alumni.length > 1 ? getInitials(alumni[1]?.name || alumni[0]?.name) : 'SM'}
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-bold text-lg">{alumni.length > 1 ? alumni[1]?.name || alumni[0]?.name : 'Sarah Miller'}</h4>
+                      <p className="text-emerald-100 text-sm">
+                        {alumni.length > 1 ? alumni[1]?.currentDesignation || 'Senior Engineer' : 'Senior React Developer'}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2 mb-3">
+                    <span className="px-3 py-1 bg-white/20 rounded-full text-xs font-medium">React</span>
+                    <span className="px-3 py-1 bg-white/20 rounded-full text-xs font-medium">TypeScript</span>
+                    <span className="px-3 py-1 bg-white/20 rounded-full text-xs font-medium">Node.js</span>
+                  </div>
+
+                  <p className="text-white/90 text-sm italic">
+                    "Since you're learning React, I'd love to help guide your journey!"
+                  </p>
+                </div>
+
+                {alumni.length > 1 && (
+                  <button
+                    onClick={() => handleConnect(alumni[1] || alumni[0])}
+                    className="w-full py-3 bg-white text-emerald-600 font-bold rounded-xl hover:scale-105 transition-transform shadow-lg"
+                  >
+                    Request Mentorship
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* COMMUNITY FEED */}
             <div className="bg-white rounded-[2rem] p-8 shadow-xl shadow-slate-200/50 border border-slate-100">
               <div className="flex justify-between items-end mb-6">
                 <div>
-                  <h3 className="text-xl font-bold text-slate-800">Find Alumni</h3>
-                  <p className="text-slate-400 text-sm">Expand your network based on skills</p>
+                  <h3 className="text-xl font-bold text-slate-800">Community Feed</h3>
+                  <p className="text-slate-400 text-sm">Latest activity from your network</p>
                 </div>
                 <Link to="/browse-alumni" className="text-sm font-bold text-purple-600 hover:text-purple-700 hover:underline">See All</Link>
               </div>
@@ -379,6 +557,46 @@ const StudentDashboard = () => {
 
           {/* RIGHT COL: Tools & Calendar */}
           <div className="space-y-8">
+
+            {/* CAREER PATH VISUALIZER */}
+            <div className="bg-gradient-to-br from-cyan-500 to-blue-600 rounded-[2rem] p-6 text-white shadow-xl relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+
+              <div className="relative z-10">
+                <div className="flex items-center gap-2 mb-4">
+                  <BarChart3 size={20} className="text-cyan-200" />
+                  <h3 className="text-lg font-bold">Where Alumni Work</h3>
+                </div>
+
+                <p className="text-cyan-100 text-xs mb-4">Top companies from your branch</p>
+
+                <div className="space-y-3">
+                  {[
+                    { company: 'Google', percentage: 35, color: 'bg-yellow-400' },
+                    { company: 'Microsoft', percentage: 25, color: 'bg-green-400' },
+                    { company: 'Amazon', percentage: 20, color: 'bg-orange-400' },
+                    { company: 'Startups', percentage: 20, color: 'bg-purple-400' }
+                  ].map((item, i) => (
+                    <div key={i}>
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="text-sm font-medium">{item.company}</span>
+                        <span className="text-xs font-bold">{item.percentage}%</span>
+                      </div>
+                      <div className="h-2 bg-white/20 rounded-full overflow-hidden">
+                        <div
+                          className={`h-full ${item.color} rounded-full transition-all duration-500`}
+                          style={{ width: `${item.percentage}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <button className="mt-4 w-full py-2 bg-white/20 hover:bg-white/30 rounded-xl font-medium text-sm backdrop-blur-sm transition-all border border-white/20">
+                  View Full Report
+                </button>
+              </div>
+            </div>
 
             {/* Quick Actions (Floating Grid) */}
             <div className="bg-white rounded-[2rem] p-6 shadow-xl shadow-slate-200/50 border border-slate-100">

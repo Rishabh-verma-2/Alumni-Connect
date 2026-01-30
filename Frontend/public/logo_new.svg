@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <defs>
+    <linearGradient id="primaryGradient" x1="0" y1="0" x2="200" y2="200" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#4F46E5" />
+      <stop offset="100%" stop-color="#7C3AED" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Main shape: Abstract A and C connection -->
+  <path d="M100 20 L40 120 H70 L85 95 H115 L130 120 H160 L100 20 Z" fill="url(#primaryGradient)" />
+  <path d="M100 55 L88 75 H112 L100 55 Z" fill="#FFFFFF" fill-opacity="0.9" />
+  
+  <!-- Connection Curve -->
+  <path d="M160 120 C160 150 135 175 105 175 C80 175 60 155 60 130" stroke="url(#primaryGradient)" stroke-width="12" stroke-linecap="round" />
+  
+  <!-- Connection Nodes -->
+  <circle cx="60" cy="130" r="10" fill="#7C3AED" />
+  <circle cx="160" cy="120" r="10" fill="#4F46E5" />
+</svg>

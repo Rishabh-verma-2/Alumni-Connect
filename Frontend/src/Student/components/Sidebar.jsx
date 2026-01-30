@@ -104,12 +104,12 @@ const Sidebar = () => {
       >
         <div>
           {/* Logo Area */}
-          <div className={`h-20 flex items-center ${isSidebarCollapsed ? 'justify-center' : 'justify-between px-6'} border-b border-slate-100/50`}>
+          <div className={`relative h-20 flex items-center ${isSidebarCollapsed ? 'justify-center' : 'px-6'} border-b border-slate-100/50`}>
             <div className="flex items-center gap-3">
               <img
-                src="/logo_v2.png"
+                src="/logo_new.svg"
                 alt="Alumni Connect Logo"
-                className="w-10 h-10 object-contain drop-shadow-md hover:scale-105 transition-transform"
+                className="w-10 h-10 object-contain drop-shadow-md hover:scale-110 transition-transform duration-300"
               />
               {!isSidebarCollapsed && (
                 <span className="font-bold text-xl tracking-tight bg-gradient-to-r from-indigo-700 to-purple-700 bg-clip-text text-transparent">
@@ -121,7 +121,7 @@ const Sidebar = () => {
             {/* Collapse Toggle (Desktop) */}
             <button
               onClick={toggleSidebar}
-              className={`hidden lg:flex w-6 h-6 items-center justify-center rounded-full bg-slate-50 border border-slate-200 text-slate-400 hover:bg-indigo-50 hover:text-indigo-600 transition-all ${isSidebarCollapsed ? 'absolute -right-3 top-20 shadow-md' : ''}`}
+              className={`hidden lg:flex w-6 h-6 items-center justify-center rounded-full bg-slate-50 border border-slate-200 text-slate-400 hover:bg-indigo-50 hover:text-indigo-600 transition-all absolute -right-3 top-7 shadow-md z-50`}
             >
               {isSidebarCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
             </button>
