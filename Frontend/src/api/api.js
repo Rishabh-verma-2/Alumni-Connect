@@ -102,7 +102,7 @@ export const studentAPI = {
     headers: { Authorization: `Bearer ${token}` }
   }),
   uploadProfileImage: (userId, formData, token) => api.post(`/student/profile/${userId}/upload-image`, formData, {
-    headers: { 
+    headers: {
       Authorization: `Bearer ${token}`,
       'Content-Type': 'multipart/form-data'
     }
@@ -140,6 +140,9 @@ export const notificationAPI = {
     headers: { Authorization: `Bearer ${token}` }
   }),
   getConnectionRequests: (token) => api.get('/connection-requests', {
+    headers: { Authorization: `Bearer ${token}` }
+  }),
+  getSentConnectionRequests: (token) => api.get('/sent-connection-requests', {
     headers: { Authorization: `Bearer ${token}` }
   }),
   getConnections: (token) => api.get('/connections', {
@@ -183,7 +186,7 @@ export const postsAPI = {
     headers: { Authorization: `Bearer ${token}` }
   }),
   createPost: (postData, token) => api.post('/posts', postData, {
-    headers: { 
+    headers: {
       Authorization: `Bearer ${token}`,
       'Content-Type': 'multipart/form-data'
     }
@@ -196,6 +199,12 @@ export const postsAPI = {
   }),
   deletePost: (postId, token) => api.delete(`/posts/${postId}`, {
     headers: { Authorization: `Bearer ${token}` }
+  }),
+  updatePost: (postId, postData, token) => api.put(`/posts/${postId}`, postData, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'multipart/form-data'
+    }
   }),
   deleteComment: (postId, commentId, token) => api.delete(`/posts/${postId}/comment/${commentId}`, {
     headers: { Authorization: `Bearer ${token}` }

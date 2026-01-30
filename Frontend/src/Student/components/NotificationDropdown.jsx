@@ -3,6 +3,7 @@ import { Bell, Check, Trash2 } from 'lucide-react';
 import { notificationAPI } from '../../api/api';
 import { useAuth } from '../../context/AuthContext';
 import { useSocket } from '../../hooks/useSocket';
+import toast from 'react-hot-toast';
 
 const NotificationDropdown = () => {
   const [notifications, setNotifications] = useState([]);
@@ -22,6 +23,13 @@ const NotificationDropdown = () => {
     if (socket) {
       socket.on('newNotification', (notification) => {
         setNotifications(prev => [notification, ...prev]);
+        if (notification.type === 'acceptedConnection') {
+          toast.success(notification.message);
+        } else if (notification.type === 'rejectedConnection') {
+          toast.error(notification.message);
+        } else {
+          toast(notification.message);
+        }
       });
 
       return () => {
@@ -107,7 +115,7 @@ const NotificationDropdown = () => {
               </button>
             )}
           </div>
-          
+
           <div className="max-h-96 overflow-y-auto">
             {loading ? (
               <div className="p-4 text-center">
@@ -134,23 +142,21 @@ const NotificationDropdown = () => {
                           className="w-8 h-8 rounded-full"
                         />
                       ) : (
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                          notification.type === 'acceptedConnection' ? 'bg-green-500' :
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${notification.type === 'acceptedConnection' ? 'bg-green-500' :
                           notification.type === 'rejectedConnection' ? 'bg-red-500' :
-                          'bg-blue-500'
-                        }`}>
+                            'bg-blue-500'
+                          }`}>
                           <span className="text-white text-xs font-bold">
                             {notification.senderId?.name?.[0] || 'A'}
                           </span>
                         </div>
                       )}
                       {/* Notification type indicator */}
-                      <div className={`absolute -bottom-1 -right-1 w-3 h-3 rounded-full border border-white ${
-                        notification.type === 'acceptedConnection' ? 'bg-green-500' :
+                      <div className={`absolute -bottom-1 -right-1 w-3 h-3 rounded-full border border-white ${notification.type === 'acceptedConnection' ? 'bg-green-500' :
                         notification.type === 'rejectedConnection' ? 'bg-red-500' :
-                        notification.type === 'connectionRequest' ? 'bg-blue-500' :
-                        'bg-gray-500'
-                      }`}></div>
+                          notification.type === 'connectionRequest' ? 'bg-blue-500' :
+                            'bg-gray-500'
+                        }`}></div>
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm text-gray-900">{notification.message}</p>

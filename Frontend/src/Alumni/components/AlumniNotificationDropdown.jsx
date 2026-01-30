@@ -25,6 +25,47 @@ const AlumniNotificationDropdown = () => {
     if (socket) {
       socket.on('newNotification', (notification) => {
         if (notification.type === 'connectionRequest') {
+          // Show toast
+          toast.custom((t) => (
+            <div
+              className={`${t.visible ? 'animate-enter' : 'animate-leave'
+                } max-w-md w-full bg-white dark:bg-gray-800 shadow-lg rounded-lg pointer-events-auto flex ring-1 ring-black ring-opacity-5`}
+            >
+              <div className="flex-1 w-0 p-4">
+                <div className="flex items-start">
+                  <div className="flex-shrink-0 pt-0.5">
+                    {notification.senderId?.profilePicture ?
+                      <img
+                        className="h-10 w-10 rounded-full"
+                        src={notification.senderId.profilePicture}
+                        alt=""
+                      /> :
+                      <div className="h-10 w-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold">
+                        {notification.senderId?.name?.[0] || 'S'}
+                      </div>
+                    }
+                  </div>
+                  <div className="ml-3 flex-1">
+                    <p className="text-sm font-medium text-gray-900 dark:text-white">
+                      New Connection Request
+                    </p>
+                    <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                      {notification.message}
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="flex border-l border-gray-200 dark:border-gray-700">
+                <button
+                  onClick={() => toast.dismiss(t.id)}
+                  className="w-full border border-transparent rounded-none rounded-r-lg p-4 flex items-center justify-center text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          ), { duration: 5000 });
+
           // Refresh connection requests when new one arrives
           fetchData();
         }
@@ -69,16 +110,16 @@ const AlumniNotificationDropdown = () => {
       setProcessingIds(prev => new Set([...prev, requestId]));
       const token = localStorage.getItem('token');
       await notificationAPI.respondToConnectionRequest(requestId, action, token);
-      
+
       // Remove the connection request from the list
       setConnectionRequests(prev => prev.filter(req => req._id !== requestId));
-      
+
       // Also remove any related connectionRequest notifications
-      setNotifications(prev => prev.filter(notif => 
-        !(notif.type === 'connectionRequest' && notif.senderId?._id === 
+      setNotifications(prev => prev.filter(notif =>
+        !(notif.type === 'connectionRequest' && notif.senderId?._id ===
           connectionRequests.find(req => req._id === requestId)?.senderId?._id)
       ));
-      
+
       toast.success(`Connection request ${action}ed successfully!`);
     } catch (error) {
       console.error('Error responding to connection request:', error);
@@ -125,7 +166,7 @@ const AlumniNotificationDropdown = () => {
           <div className="p-4 border-b border-gray-200">
             <h3 className="text-lg font-semibold text-gray-900">Notifications</h3>
           </div>
-          
+
           <div className="max-h-80 overflow-y-auto">
             {loading ? (
               <div className="p-4 text-center">

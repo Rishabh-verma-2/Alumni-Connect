@@ -7,23 +7,25 @@ export async function getAllAlumni(req, res) {
         const alumni = await Alumni.find({ isVerified: true })
             .populate('user', 'name email role username')
             .select('yearOfPassing branch currentCompany currentDesignation currentLocation profilePicture socialLinks achievements');
-        
-        const alumniData = alumni.map(alum => ({
-            _id: alum._id,
-            userId: alum.user._id, // Add the user ID for connection requests
-            name: alum.user.name || alum.user.username,
-            email: alum.user.email,
-            role: alum.user.role,
-            enrollmentId: alum.user.enrollmentId,
-            yearOfPassing: alum.yearOfPassing,
-            branch: alum.branch,
-            currentCompany: alum.currentCompany,
-            currentDesignation: alum.currentDesignation,
-            currentLocation: alum.currentLocation,
-            profilePicture: alum.profilePicture,
-            socialLinks: alum.socialLinks,
-            achievements: alum.achievements
-        }));
+
+        const alumniData = alumni
+            .filter(alum => alum.user) // Filter out alumni whose user account might have been deleted
+            .map(alum => ({
+                _id: alum._id,
+                userId: alum.user._id, // Add the user ID for connection requests
+                name: alum.user.name || alum.user.username,
+                email: alum.user.email,
+                role: alum.user.role,
+                enrollmentId: alum.user.enrollmentId,
+                yearOfPassing: alum.yearOfPassing,
+                branch: alum.branch,
+                currentCompany: alum.currentCompany,
+                currentDesignation: alum.currentDesignation,
+                currentLocation: alum.currentLocation,
+                profilePicture: alum.profilePicture,
+                socialLinks: alum.socialLinks,
+                achievements: alum.achievements
+            }));
 
         res.status(200).json({
             status: 'success',
@@ -43,12 +45,12 @@ export async function getAllAlumniForAdmin(req, res) {
             .select('username email name enrollmentId createdAt isVerified updatedAt')
             .lean()
             .sort({ createdAt: -1 });
-        
+
         // Get alumni profiles for additional info
         const alumniProfiles = await Alumni.find({})
             .populate('user', 'username email name enrollmentId createdAt isVerified')
             .lean();
-        
+
         // Merge user data with profile data
         const enrichedAlumni = alumni.map(user => {
             const profile = alumniProfiles.find(p => p.user && p.user._id.toString() === user._id.toString());
@@ -73,7 +75,7 @@ export async function getAllAlumniForAdmin(req, res) {
                 } : null
             };
         });
-        
+
         res.status(200).json({
             status: 'success',
             count: enrichedAlumni.length,
@@ -90,18 +92,18 @@ export async function getAlumniProfile(req, res) {
     try {
         const { id } = req.params;
         console.log('Fetching alumni profile for ID:', id);
-        
+
         // Try to find by Alumni ID first
         let alumni = await Alumni.findById(id)
             .populate('user', 'name email role username enrollmentId');
-        
+
         // If not found by Alumni ID, try to find by User ID
         if (!alumni) {
             console.log('Alumni not found by Alumni ID, trying User ID...');
             alumni = await Alumni.findOne({ user: id })
                 .populate('user', 'name email role username enrollmentId');
         }
-        
+
         if (!alumni) {
             console.log('Alumni not found by either ID');
             return res.status(404).json({ message: 'Alumni not found' });
@@ -141,9 +143,9 @@ export async function createAlumniProfile(req, res) {
     try {
         const alumniData = req.body;
         console.log('Creating alumni with data:', alumniData); // Debug log
-        
+
         const alumni = await Alumni.create(alumniData);
-        
+
         res.status(201).json({
             status: 'success',
             data: alumni
@@ -160,12 +162,12 @@ export async function updateAlumniProfile(req, res) {
         const { id } = req.params;
         const updateData = req.body;
         console.log('Updating alumni with data:', updateData); // Debug log
-        
+
         const alumni = await Alumni.findByIdAndUpdate(id, updateData, {
             new: true,
             runValidators: true
         }).populate('user', 'name email role username');
-        
+
         if (!alumni) {
             return res.status(404).json({ message: 'Alumni not found' });
         }

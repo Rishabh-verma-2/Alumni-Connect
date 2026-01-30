@@ -1,10 +1,11 @@
 import express from 'express';
-import { 
-  sendConnectionRequest, 
-  respondToConnectionRequest, 
-  getNotifications, 
+import {
+  sendConnectionRequest,
+  respondToConnectionRequest,
+  getNotifications,
   markNotificationAsRead,
   getConnectionRequests,
+  getSentConnectionRequests,
   getConnections,
   removeConnection,
   clearAllNotifications
@@ -19,6 +20,7 @@ router.get('/notifications', protect, getNotifications);
 router.patch('/notifications/:notificationId/read', protect, markNotificationAsRead);
 router.delete('/notifications/clear-all', protect, clearAllNotifications);
 router.get('/connection-requests', protect, getConnectionRequests);
+router.get('/sent-connection-requests', protect, getSentConnectionRequests);
 router.get('/connections', protect, getConnections);
 router.delete('/connections/:connectionId', protect, removeConnection);
 

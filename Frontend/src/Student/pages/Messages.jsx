@@ -1,5 +1,6 @@
+
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, Send, Phone, Video, MoreVertical, ArrowLeft, Heart, Smile } from 'lucide-react';
+import { Search, Send, Phone, Video, MoreVertical, ArrowLeft, Heart, Smile, Paperclip, Check, CheckCheck } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
 import AlumniSidebar from '../../Alumni/components/AlumniSidebar';
 import { useAuth } from '../../context/AuthContext';
@@ -8,7 +9,7 @@ import { notificationAPI, chatAPI } from '../../api/api';
 import io from 'socket.io-client';
 import EmojiPicker from 'emoji-picker-react';
 import toast from 'react-hot-toast';
-
+import { motion, AnimatePresence } from 'framer-motion';
 
 const Messages = () => {
   const [connections, setConnections] = useState([]);
@@ -31,56 +32,50 @@ const Messages = () => {
 
   useEffect(() => {
     fetchConnections();
-    
-    // Auto-collapse sidebar after component is mounted
+
+    // Auto-collapse sidebar after component is mounted for better space
     const timer = setTimeout(() => {
       if (!isSidebarCollapsed && toggleSidebar) {
         toggleSidebar();
       }
     }, 200);
-    
+
     return () => clearTimeout(timer);
   }, [isSidebarCollapsed, toggleSidebar]);
 
   useEffect(() => {
     if (!user?._id) return;
-    
+
     const socket = io('http://localhost:5001', {
       timeout: 10000,
       reconnection: true,
       reconnectionAttempts: 3,
       reconnectionDelay: 1000
     });
-    
+
     socket.on('connect', () => {
       console.log('Socket connected for user:', user._id);
       socket.emit('join', user._id);
     });
-    
+
     socket.on('connect_error', (error) => {
       console.warn('Socket connection failed:', error.message);
     });
-    
+
     socket.on('newMessage', (data) => {
-      console.log('NEW MESSAGE RECEIVED:', data);
-      console.log('Current user ID:', user._id);
-      console.log('Current chat ID:', currentChatId);
-      console.log('Message chat ID:', data.chatId);
       const senderId = data.message.senderId._id || data.message.senderId;
-      console.log('Sender ID:', senderId);
-      
+
       // Increment unread count for the sender
       setUnreadCounts(prev => {
         const updated = { ...prev, [senderId]: (prev[senderId] || 0) + 1 };
-        console.log('UNREAD COUNTS UPDATED:', updated);
         return updated;
       });
-      
+
       // If current chat, add message
       if (data.chatId === currentChatId) {
         const newMessage = { ...data.message, isOwn: false };
         setMessages(prev => [...prev, newMessage]);
-        
+
         // Initialize reactions for new message if they exist
         if (newMessage.reactions && Object.keys(newMessage.reactions).length > 0) {
           setMessageReactions(prev => ({
@@ -88,7 +83,7 @@ const Messages = () => {
             [newMessage._id]: newMessage.reactions
           }));
         }
-        
+
         setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
       }
     });
@@ -98,7 +93,7 @@ const Messages = () => {
         setMessages(prev => prev.filter(msg => msg._id !== data.messageId));
       }
     });
-    
+
     socket.on('messageReactionUpdated', (data) => {
       if (data.chatId === currentChatId) {
         setMessageReactions(prev => ({
@@ -107,7 +102,7 @@ const Messages = () => {
         }));
       }
     });
-    
+
     return () => {
       socket.disconnect();
     };
@@ -116,17 +111,17 @@ const Messages = () => {
   // Fallback: Refresh messages every 3 seconds if no real-time updates
   useEffect(() => {
     if (!currentChatId || !selectedChat) return;
-    
+
     const refreshMessages = async () => {
       try {
         const token = localStorage.getItem('token');
         const response = await chatAPI.getOrCreateChat(selectedChat._id, token);
-        
+
         const chatMessages = (response.data.chat.messages || []).map(msg => ({
           ...msg,
           isOwn: (msg.senderId._id || msg.senderId) === user._id
         }));
-        
+
         // Only update if we have new messages
         if (chatMessages.length !== messages.length) {
           setMessages(chatMessages);
@@ -136,7 +131,7 @@ const Messages = () => {
         console.error('Error refreshing messages:', error);
       }
     };
-    
+
     const interval = setInterval(refreshMessages, 3000);
     return () => clearInterval(interval);
   }, [currentChatId, selectedChat, messages.length, user._id]);
@@ -146,7 +141,7 @@ const Messages = () => {
 
     const handleNewMessage = (data) => {
       const message = { ...data.message, isOwn: false };
-      
+
       if (data.chatId === currentChatId) {
         setMessages(prev => [...prev, message]);
         setTimeout(() => {
@@ -163,7 +158,7 @@ const Messages = () => {
           }));
         }
       }
-      
+
       window.dispatchEvent(new CustomEvent('refreshUnreadCount'));
     };
 
@@ -177,17 +172,15 @@ const Messages = () => {
     window.chatSocket.off('messageDeleted');
     window.chatSocket.on('newMessage', handleNewMessage);
     window.chatSocket.on('messageDeleted', handleMessageDeleted);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentChatId]);
 
   const fetchConnections = async () => {
     try {
       const token = localStorage.getItem('token');
       const response = await notificationAPI.getConnections(token);
-      console.log('Connections data:', response.data.data); // Debug log
-      console.log('First connection profile picture:', response.data.data?.[0]?.profilePicture); // Debug profile picture
       setConnections(response.data.data || []);
-      
+
       // Fetch unread counts
       const unreadResponse = await chatAPI.getUnreadCount(token);
       if (unreadResponse.data.unreadPerChat) {
@@ -200,17 +193,15 @@ const Messages = () => {
 
   const handleSendMessage = async () => {
     if (!newMessage.trim() || !currentChatId) return;
-    
+
     try {
       const token = localStorage.getItem('token');
       const messageData = { content: newMessage };
       if (replyingTo) {
         messageData.replyTo = replyingTo._id;
       }
-      console.log('Sending message:', { ...messageData, chatId: currentChatId, userId: user._id });
       const response = await chatAPI.sendMessage(currentChatId, messageData, token);
-      console.log('Message sent response:', response.data);
-      
+
       const message = {
         ...response.data.message,
         isOwn: response.data.message.senderId._id === user._id,
@@ -220,11 +211,11 @@ const Messages = () => {
           senderId: replyingTo.senderId
         } : response.data.message.replyTo
       };
-      
+
       setMessages([...messages, message]);
       setNewMessage('');
       setReplyingTo(null);
-      
+
       // Initialize reactions for new message if they exist
       if (message.reactions && Object.keys(message.reactions).length > 0) {
         setMessageReactions(prev => ({
@@ -232,7 +223,7 @@ const Messages = () => {
           [message._id]: message.reactions
         }));
       }
-      
+
       setTimeout(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
       }, 100);
@@ -242,29 +233,26 @@ const Messages = () => {
   };
 
   const handleSelectChat = async (connection) => {
-    console.log('Opening chat for:', connection.name);
-    
-    // Set selected chat immediately for UI feedback
     setSelectedChat(connection);
     setMessages([]);
     setCurrentChatId(null);
-    
+
     try {
       const token = localStorage.getItem('token');
       const connectionId = connection._id;
-      
+
       const response = await chatAPI.getOrCreateChat(connectionId, token);
-      
+
       if (response?.data?.chat) {
         setCurrentChatId(response.data.chat._id);
-        
+
         const chatMessages = (response.data.chat.messages || []).map(msg => ({
           ...msg,
           isOwn: (msg.senderId._id || msg.senderId) === user._id
         }));
-        
+
         setMessages(chatMessages);
-        
+
         setTimeout(() => {
           messagesEndRef.current?.scrollIntoView({ behavior: 'auto' });
           messageInputRef.current?.focus();
@@ -280,7 +268,7 @@ const Messages = () => {
     try {
       const token = localStorage.getItem('token');
       await chatAPI.deleteMessage(currentChatId, messageId, token);
-      
+
       setMessages(messages.filter(msg => msg._id !== messageId));
       setShowDeleteMenu(null);
     } catch (error) {
@@ -290,7 +278,6 @@ const Messages = () => {
 
   const handleEmojiSelect = (emojiObject) => {
     setNewMessage(prev => prev + emojiObject.emoji);
-    // Don't close picker, let user select multiple emojis
     messageInputRef.current?.focus();
   };
 
@@ -312,13 +299,13 @@ const Messages = () => {
     try {
       const token = localStorage.getItem('token');
       const response = await chatAPI.toggleMessageReaction(currentChatId, messageId, reaction, token);
-      
+
       // Update local state with response from server
       setMessageReactions(prev => ({
         ...prev,
         [messageId]: response.data.reactions
       }));
-      
+
       setShowReactionPicker(null);
     } catch (error) {
       console.error('Error toggling message reaction:', error);
@@ -332,31 +319,32 @@ const Messages = () => {
 
   const handleVoiceCall = () => {
     toast('🔊 Voice calls coming soon!', {
-      duration: 3000,
+      icon: '🔊',
       style: {
-        background: '#3B82F6',
-        color: 'white',
+        borderRadius: '10px',
+        background: '#333',
+        color: '#fff',
       },
     });
   };
 
   const handleVideoCall = () => {
     toast('📹 Video calls coming soon!', {
-      duration: 3000,
+      icon: '📹',
       style: {
-        background: '#7C3AED',
-        color: 'white',
+        borderRadius: '10px',
+        background: '#333',
+        color: '#fff',
       },
     });
   };
 
   const handleDeleteChatForMe = async () => {
     if (!currentChatId) return;
-    
+
     try {
       const token = localStorage.getItem('token');
-      console.log('Deleting chat:', currentChatId);
-      
+
       // Try to delete the entire chat first
       const deleteResponse = await fetch(`http://localhost:5001/api/v1/chat/${currentChatId}`, {
         method: 'DELETE',
@@ -365,24 +353,19 @@ const Messages = () => {
           'Content-Type': 'application/json'
         }
       });
-      
+
       if (deleteResponse.ok) {
-        console.log('Chat deleted successfully');
         toast.success('Chat deleted successfully');
       } else {
-        // Fallback to leave chat if delete fails
-        console.log('Delete failed, trying to leave chat');
         await chatAPI.leaveChat(currentChatId, token);
         toast.success('Left chat successfully');
       }
-      
-      // Reset chat state
+
       setSelectedChat(null);
       setCurrentChatId(null);
       setMessages([]);
       setShowChatMenu(false);
-      
-      // Refresh connections and force unread count refresh
+
       fetchConnections();
       setTimeout(() => {
         window.dispatchEvent(new CustomEvent('refreshUnreadCount'));
@@ -393,9 +376,12 @@ const Messages = () => {
     }
   };
 
-  const filteredConnections = (connections || []).filter(conn =>
-    conn?.name?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredConnections = (connections || []).filter(conn => {
+    const term = searchTerm.toLowerCase();
+    const nameMatch = conn?.name?.toLowerCase().includes(term);
+    const usernameMatch = conn?.username?.toLowerCase().includes(term);
+    return nameMatch || usernameMatch;
+  });
 
   const getInitials = (name) => {
     if (!name) return 'U';
@@ -403,393 +389,332 @@ const Messages = () => {
   };
 
   return (
-    <div className="h-screen bg-gray-50 dark:bg-gray-900 flex overflow-hidden">
+    <div className="h-screen bg-gray-50 dark:bg-gray-900 flex overflow-hidden font-sans">
       {user?.role === 'alumni' ? <AlumniSidebar /> : <Sidebar />}
-      
-      <div className={`flex-1 transition-all duration-300 flex ${
-        isSidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'
-      }`}>
-        <div className="w-full sm:w-80 lg:w-80 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col h-full">
-          <div className="p-3 sm:p-4 border-b border-gray-200 dark:border-gray-700">
-            <h1 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white mb-3 sm:mb-4">Messages</h1>
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+
+      <div className={`flex-1 transition-all duration-300 flex ${isSidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'
+        }`}>
+        {/* Sidebar / Chat List */}
+        <div className={`w-full sm:w-80 lg:w-96 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 flex flex-col h-full ${selectedChat ? 'hidden sm:flex' : 'flex'}`}>
+          <div className="p-4 pl-12 border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 sticky top-0 z-10">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Messages</h1>
+            <div className="relative group">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors" size={20} />
               <input
                 type="text"
                 placeholder="Search conversations..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 text-sm sm:text-base border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                className="w-full pl-10 pr-4 py-3 bg-gray-100 dark:bg-gray-800 border-none rounded-xl focus:ring-2 focus:ring-blue-500/50 text-gray-900 dark:text-white transition-all placeholder-gray-400"
               />
             </div>
           </div>
-            
-          <div className="overflow-y-auto flex-1">
+
+          <div className="overflow-y-auto flex-1 p-2 space-y-1">
             {(filteredConnections || []).map((connection) => (
-              <div
+              <motion.div
+                layout
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
                 key={connection._id}
-                className={`p-3 sm:p-4 border-b border-gray-100 dark:border-gray-700 hover:bg-blue-50/50 dark:hover:bg-blue-900/20 hover:border-r-2 hover:border-blue-600/30 transition-all duration-200 ${
-                  selectedChat?._id === connection._id ? 'bg-blue-50 dark:bg-blue-900 border-r-2 border-blue-600' : ''
-                }`}
+                onClick={() => handleSelectChat(connection)}
+                className={`p-3 rounded-xl cursor-pointer transition-all duration-200 group ${selectedChat?._id === connection._id
+                  ? 'bg-blue-50 dark:bg-blue-900/20 shadow-sm'
+                  : 'hover:bg-gray-100 dark:hover:bg-gray-800'
+                  }`}
               >
-                <div 
-                  className="flex items-center justify-between cursor-pointer" 
-                  onClick={() => {
-                    console.log('Connection clicked:', connection);
-                    console.log('Connection ID:', connection._id);
-                    console.log('User ID:', user._id);
-                    console.log('Token exists:', !!localStorage.getItem('token'));
-                    handleSelectChat(connection);
-                  }}
-                >
-                  <div className="flex items-center flex-1">
+                <div className="flex items-center space-x-3">
+                  <div className="relative flex-shrink-0">
                     {connection.profilePicture ? (
                       <img
                         src={connection.profilePicture}
                         alt={connection.name}
-                        className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover"
-                        onError={(e) => {
-                          console.log('Image failed to load:', connection.profilePicture);
-                          e.target.style.display = 'none';
-                        }}
+                        className="w-12 h-12 rounded-full object-cover border-2 border-white dark:border-gray-700 shadow-sm"
+                        onError={(e) => { e.target.style.display = 'none'; }}
                       />
                     ) : (
-                      <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-sm sm:text-base">
+                      <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-bold shadow-sm">
                         {getInitials(connection.name)}
                       </div>
                     )}
-                    <div className="ml-2 sm:ml-3 flex-1 min-w-0">
-                      <div className="flex items-center justify-between">
-                        <h3 className="font-medium text-gray-900 dark:text-white text-sm sm:text-base truncate">
-                          {connection.name || connection.username}
-                        </h3>
-                        {unreadCounts[connection._id] > 0 && selectedChat?._id !== connection._id && (
-                          <div className="bg-red-500 text-white text-xs rounded-full px-2 py-1 min-w-[20px] text-center flex-shrink-0">
-                            {unreadCounts[connection._id]}
-                          </div>
-                        )}
-                      </div>
-                      <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 capitalize truncate">
-                        {connection.role}
-                      </p>
+                    {/* Online status indicator (mock) */}
+                    <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white dark:border-gray-900 rounded-full"></div>
+                  </div>
+
+                  <div className="flex-1 min-w-0">
+                    <div className="flex justify-between items-baseline mb-1">
+                      <h3 className={`font-semibold text-sm truncate ${selectedChat?._id === connection._id
+                        ? 'text-blue-600 dark:text-blue-400'
+                        : 'text-gray-900 dark:text-white'
+                        }`}>
+                        {connection.name || connection.username}
+                      </h3>
+                      {unreadCounts[connection._id] > 0 && selectedChat?._id !== connection._id && (
+                        <div className="bg-blue-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[1.25rem] text-center shadow-sm">
+                          {unreadCounts[connection._id]}
+                        </div>
+                      )}
                     </div>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 capitalize truncate flex items-center">
+                      {connection.role}
+                      <span className="mx-1.5 opacity-50">•</span>
+                      <span className="opacity-75">Click to chat</span>
+                    </p>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             ))}
-            
+
             {filteredConnections.length === 0 && (
-              <div className="p-6 sm:p-8 text-center">
-                <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400">
-                  {user?.role === 'alumni' ? 'No student connections found' : 'No connections found'}
-                </p>
+              <div className="flex flex-col items-center justify-center h-48 text-center text-gray-500 dark:text-gray-400 px-4">
+                <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-full mb-3">
+                  <Search size={24} className="opacity-50" />
+                </div>
+                <p>No connections found</p>
               </div>
             )}
           </div>
         </div>
 
-        <div className={`flex-1 flex flex-col ${selectedChat ? 'flex' : 'hidden sm:flex'}`}>
+        {/* Main Chat Area */}
+        <div className={`flex-1 flex flex-col h-full bg-white dark:bg-gray-950 relative ${selectedChat ? 'flex' : 'hidden sm:flex'}`}>
           {selectedChat ? (
             <>
-              <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-3 sm:p-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center min-w-0 flex-1">
-                    <button
-                      onClick={handleCloseChat}
-                      className="p-2 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg hover:bg-blue-50/50 dark:hover:bg-blue-900/20 mr-2 transition-all duration-200"
-                      title="Back to chat list"
-                    >
-                      <ArrowLeft size={20} />
-                    </button>
-                    {selectedChat.profilePicture ? (
-                      <img
-                        src={selectedChat.profilePicture}
-                        alt={selectedChat.name}
-                        className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
-                        {getInitials(selectedChat.name)}
-                      </div>
-                    )}
-                    <div className="ml-2 sm:ml-3 min-w-0 flex-1">
-                      <h2 className="font-semibold text-gray-900 dark:text-white text-sm sm:text-base truncate">
-                        {selectedChat.name || selectedChat.username}
-                      </h2>
-                      <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 capitalize truncate">
-                        {selectedChat.role}
-                      </p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center space-x-1 sm:space-x-2 flex-shrink-0">
-                    <button 
-                      onClick={handleVoiceCall}
-                      className="p-1.5 sm:p-2 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg hover:bg-blue-50/50 dark:hover:bg-blue-900/20 transition-all duration-200 hidden sm:block"
-                      title="Voice call"
-                    >
-                      <Phone size={18} />
-                    </button>
-                    <button 
-                      onClick={handleVideoCall}
-                      className="p-1.5 sm:p-2 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg hover:bg-blue-50/50 dark:hover:bg-blue-900/20 transition-all duration-200 hidden sm:block"
-                      title="Video call"
-                    >
-                      <Video size={18} />
-                    </button>
+              {/* Chat Header */}
+              <div className="px-6 py-4 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-100 dark:border-gray-800 sticky top-0 z-20 flex justify-between items-center shadow-sm">
+                <div className="flex items-center">
+                  <button
+                    onClick={handleCloseChat}
+                    className="sm:hidden mr-3 p-2 -ml-2 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg"
+                  >
+                    <ArrowLeft size={20} />
+                  </button>
+
+                  <div className="flex items-center space-x-4 cursor-pointer hover:opacity-80 transition-opacity">
                     <div className="relative">
-                      <button 
-                        onClick={() => setShowChatMenu(!showChatMenu)}
-                        className="p-1.5 sm:p-2 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg hover:bg-blue-50/50 dark:hover:bg-blue-900/20 transition-all duration-200"
-                      >
-                        <MoreVertical size={18} />
-                      </button>
-                      {showChatMenu && (
-                        <div className="absolute right-0 top-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-10">
-                          <button
-                            onClick={() => {
-                              handleCloseChat();
-                              setShowChatMenu(false);
-                            }}
-                            className="w-full px-4 py-2 text-left text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50/50 dark:hover:bg-blue-900/20 rounded-t-lg text-sm whitespace-nowrap transition-all duration-200"
-                          >
-                            Close Chat
-                          </button>
-                          <button
-                            onClick={handleDeleteChatForMe}
-                            className="w-full px-4 py-2 text-left text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-b-lg text-sm whitespace-nowrap border-t border-gray-200 dark:border-gray-700"
-                          >
-                            Delete Chat
-                          </button>
+                      {selectedChat.profilePicture ? (
+                        <img
+                          src={selectedChat.profilePicture}
+                          alt={selectedChat.name}
+                          className="w-10 h-10 rounded-full object-cover border-2 border-gray-100 dark:border-gray-800"
+                        />
+                      ) : (
+                        <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-sm">
+                          {getInitials(selectedChat.name)}
                         </div>
                       )}
+                      <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-white dark:border-gray-900 rounded-full"></div>
                     </div>
+                    <div>
+                      <h2 className="font-bold text-gray-900 dark:text-white leading-tight">
+                        {selectedChat.name || selectedChat.username}
+                      </h2>
+                      <p className="text-xs text-green-500 font-medium">Online</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={handleVoiceCall}
+                    className="p-2.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-xl transition-all hidden sm:block"
+                  >
+                    <Phone size={20} />
+                  </button>
+                  <button
+                    onClick={handleVideoCall}
+                    className="p-2.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-xl transition-all hidden sm:block"
+                  >
+                    <Video size={20} />
+                  </button>
+                  <div className="relative">
+                    <button
+                      onClick={() => setShowChatMenu(!showChatMenu)}
+                      className="p-2.5 text-gray-500 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-all"
+                    >
+                      <MoreVertical size={20} />
+                    </button>
+                    <AnimatePresence>
+                      {showChatMenu && (
+                        <motion.div
+                          initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                          animate={{ opacity: 1, scale: 1, y: 0 }}
+                          exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                          className="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 z-50 overflow-hidden"
+                        >
+                          <div className="p-1">
+                            <button
+                              onClick={() => { handleCloseChat(); setShowChatMenu(false); }}
+                              className="w-full text-left px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                            >
+                              Close Chat
+                            </button>
+                            <button
+                              onClick={handleDeleteChatForMe}
+                              className="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                            >
+                              Delete Chat
+                            </button>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
                 </div>
               </div>
 
-              <div className="flex-1 overflow-y-auto p-3 sm:p-4 bg-gray-50 dark:bg-gray-900 h-0">
+              {/* Messages Area */}
+              <div
+                className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 bg-gray-50/50 dark:bg-gray-900/50"
+                style={{ backgroundImage: 'radial-gradient(circle at center, rgba(0,0,0,0.02) 2px, transparent 2.5px)', backgroundSize: '24px 24px' }}
+              >
                 {messages.length === 0 ? (
-                  <div className="flex items-center justify-center h-full">
-                    <div className="text-center">
-                      <div className="w-16 h-16 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <Send className="w-8 h-8 text-gray-400" />
-                      </div>
-                      <p className="text-gray-500 dark:text-gray-400">Start a conversation with {selectedChat.name}</p>
+                  <div className="flex flex-col items-center justify-center h-full text-center space-y-4">
+                    <div className="w-24 h-24 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mb-2">
+                      <Send className="w-10 h-10 text-blue-600 dark:text-blue-400 ml-1" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold text-gray-900 dark:text-white">Start a new conversation</h3>
+                      <p className="text-gray-500 dark:text-gray-400 mt-1 max-w-xs mx-auto">
+                        Say hello to {selectedChat.name}! Messages are private and secure.
+                      </p>
                     </div>
                   </div>
                 ) : (
-                  <div className="space-y-4">
-                    {messages.map((message, index) => {
-                      const messageId = message._id || message.id;
-                      const reactions = messageReactions[messageId] || {};
-                      const hasReactions = Object.keys(reactions).length > 0;
-                      
-                      // Date separator logic
-                      const messageDate = new Date(message.timestamp);
-                      const prevMessage = index > 0 ? messages[index - 1] : null;
-                      const prevDate = prevMessage ? new Date(prevMessage.timestamp) : null;
-                      
-                      const showDateSeparator = !prevDate || 
-                        messageDate.toDateString() !== prevDate.toDateString();
-                      
-                      const getDateLabel = (date) => {
-                        const today = new Date();
-                        const yesterday = new Date(today);
-                        yesterday.setDate(yesterday.getDate() - 1);
-                        
-                        if (date.toDateString() === today.toDateString()) {
-                          return 'Today';
-                        } else if (date.toDateString() === yesterday.toDateString()) {
-                          return 'Yesterday';
-                        } else {
-                          return date.toLocaleDateString();
-                        }
-                      };
-                      
-                      return (
-                        <div key={messageId}>
-                          {/* Date Separator */}
-                          {showDateSeparator && (
-                            <div className="flex justify-center my-4">
-                              <div className="bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400 px-3 py-1 rounded-full text-xs font-medium">
-                                {getDateLabel(messageDate)}
-                              </div>
-                            </div>
-                          )}
-                          
-                          <div className={`flex ${message.isOwn ? 'justify-end' : 'justify-start'} group`}>
+                  messages.map((message, index) => {
+                    const messageId = message._id || message.id;
+                    const reactions = messageReactions[messageId] || {};
+                    const hasReactions = Object.keys(reactions).length > 0;
+                    const isOwn = message.isOwn;
 
-                          <div className={`flex items-end ${message.isOwn ? 'flex-row-reverse' : 'flex-row'} max-w-[85%] sm:max-w-[70%]`}>
-                            {/* Avatar for received messages */}
-                            {!message.isOwn && (
-                              <div className="flex-shrink-0 mr-2">
-                                {(() => {
-                                  // Try multiple sources for profile picture
-                                  const senderInfo = message.senderId;
-                                  let profilePicture = null;
-                                  let senderName = selectedChat.name;
-                                  
-                                  // Check message sender first
-                                  if (senderInfo && typeof senderInfo === 'object') {
-                                    profilePicture = senderInfo.profilePicture;
-                                    senderName = senderInfo.name || senderInfo.username;
-                                  }
-                                  
-                                  // Fallback to selectedChat
-                                  if (!profilePicture) {
-                                    profilePicture = selectedChat.profilePicture;
-                                  }
-                                  
-                                  return profilePicture ? (
-                                    <img
-                                      src={profilePicture}
-                                      alt={senderName}
-                                      className="w-6 h-6 sm:w-8 sm:h-8 rounded-full object-cover"
-                                    />
+                    const messageDate = new Date(message.timestamp);
+                    const prevMessage = index > 0 ? messages[index - 1] : null;
+                    const prevDate = prevMessage ? new Date(prevMessage.timestamp) : null;
+                    const showDateSeparator = !prevDate || messageDate.toDateString() !== prevDate.toDateString();
+
+                    return (
+                      <React.Fragment key={messageId}>
+                        {showDateSeparator && (
+                          <div className="flex justify-center my-6">
+                            <span className="bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 text-xs font-medium px-4 py-1.5 rounded-full shadow-sm">
+                              {messageDate.toLocaleDateString([], { month: 'short', day: 'numeric' })}
+                            </span>
+                          </div>
+                        )}
+
+                        <motion.div
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className={`flex ${isOwn ? 'justify-end' : 'justify-start'} group mb-2`}
+                        >
+                          <div className={`flex flex-col max-w-[85%] sm:max-w-[70%] ${isOwn ? 'items-end' : 'items-start'}`}>
+
+                            <div className={`flex items-end gap-2 ${isOwn ? 'flex-row-reverse' : 'flex-row'}`}>
+                              {!isOwn && (
+                                <div className="flex-shrink-0 mb-1">
+                                  {selectedChat.profilePicture ? (
+                                    <img src={selectedChat.profilePicture} className="w-8 h-8 rounded-full shadow-sm" alt="Avatar" />
                                   ) : (
-                                    <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-xs">
-                                      {getInitials(senderName)}
+                                    <div className="w-8 h-8 bg-gradient-to-br from-gray-400 to-gray-600 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                                      {getInitials(selectedChat.name)}
                                     </div>
-                                  );
-                                })()}
-                              </div>
-                            )}
-                            
-                            <div className="relative">
-                              <div
-                                className={`px-3 sm:px-4 py-2 rounded-lg ${message.isOwn
-                                    ? 'bg-blue-600 text-white'
-                                    : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white'
-                                  }`}
-                              >
-                                {/* Reply indicator - Enhanced WhatsApp style */}
-                                {message.replyTo && (
-                                  <div className={`mb-3 -mx-1 px-3 py-2 rounded-md border-l-4 cursor-pointer transition-all hover:bg-opacity-80 ${
-                                    message.isOwn 
-                                      ? 'bg-white/10 border-white/40 text-white/90 hover:bg-white/15' 
-                                      : 'bg-blue-50 dark:bg-blue-900/20 border-blue-500 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/30'
-                                  }`}>
-                                    <div className={`text-xs font-semibold mb-1 ${
-                                      message.isOwn ? 'text-white/80' : 'text-blue-600 dark:text-blue-400'
-                                    }`}>
-                                      {message.replyTo.senderId === user._id ? '↩ You' : `↩ ${selectedChat?.name || 'User'}`}
-                                    </div>
-                                    <div className={`text-sm leading-relaxed ${
-                                      message.isOwn ? 'text-white/90' : 'text-gray-600 dark:text-gray-300'
-                                    }`}>
-                                      {(message.replyTo?.content || '').length > 60 
-                                        ? `${message.replyTo.content.substring(0, 60)}...` 
-                                        : (message.replyTo?.content || '')
-                                      }
-                                    </div>
-                                  </div>
-                                )}
-                                <p className="text-sm sm:text-base break-words leading-relaxed">{message.content}</p>
-                              </div>
-                              <p className={`text-xs mt-1 px-1 ${message.isOwn ? 'text-right' : 'text-left'} ${
-                                message.isOwn ? 'text-gray-500' : 'text-gray-500 dark:text-gray-400'
-                              }`}>
-                                {new Date(message.timestamp).toLocaleTimeString()}
-                              </p>
-                              
-                              {/* Reactions Display */}
-                              {hasReactions && (
-                                <div className="flex flex-wrap gap-1 mt-1">
-                                  {Object.entries(reactions).map(([emoji, userIds]) => (
-                                    <button
-                                      key={emoji}
-                                      onClick={() => handleMessageReaction(messageId, emoji)}
-                                      className={`flex items-center px-2 py-1 rounded-full text-xs border transition-colors ${
-                                        Array.isArray(userIds) && userIds.includes(user._id)
-                                          ? 'bg-blue-100 border-blue-300 text-blue-700 dark:bg-blue-900 dark:border-blue-600 dark:text-blue-300'
-                                          : 'bg-gray-100 border-gray-200 text-gray-600 hover:bg-gray-200 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-600'
-                                      }`}
-                                    >
-                                      <span className="mr-1">{emoji}</span>
-                                      <span>{Array.isArray(userIds) ? userIds.length : 0}</span>
-                                    </button>
-                                  ))}
+                                  )}
                                 </div>
                               )}
+
+                              <div className="relative group">
+                                <div
+                                  className={`px-4 py-2.5 sm:px-5 sm:py-3 rounded-2xl shadow-sm text-[15px] leading-relaxed relative ${isOwn
+                                    ? 'bg-gradient-to-br from-blue-600 to-indigo-600 text-white rounded-tr-none'
+                                    : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-100 dark:border-gray-700 rounded-tl-none'
+                                    }`}
+                                >
+                                  {/* Reply Quote */}
+                                  {message.replyTo && (
+                                    <div className={`mb-2 text-xs border-l-2 pl-2 py-1 rounded-r-md ${isOwn
+                                      ? 'border-white/40 bg-white/10 text-white/90'
+                                      : 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-300'
+                                      }`}>
+                                      <p className="font-bold mb-0.5">{message.replyTo.senderId === user._id ? 'You' : selectedChat.name}</p>
+                                      <p className="truncate opacity-80">{message.replyTo.content}</p>
+                                    </div>
+                                  )}
+
+                                  {/* Message Content */}
+                                  <p className="whitespace-pre-wrap">{message.content}</p>
+
+                                  {/* Time & Read Status */}
+                                  <div className={`flex items-center justify-end gap-1 mt-1 text-[10px] sm:text-[11px] font-medium ${isOwn ? 'text-blue-100' : 'text-gray-400'
+                                    }`}>
+                                    <span>{new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                    {isOwn && <CheckCheck size={14} className="opacity-80" />}
+                                  </div>
+                                </div>
+
+                                {/* Reactions Overlay */}
+                                {hasReactions && (
+                                  <div className={`absolute -bottom-3 ${isOwn ? 'right-0' : 'left-0'} flex gap-0.5 z-10`}>
+                                    {Object.entries(reactions).map(([emoji, userIds]) => (
+                                      <div key={emoji} className="bg-white dark:bg-gray-800 text-xs px-1.5 py-0.5 rounded-full shadow border border-gray-100 dark:border-gray-700 flex items-center gap-0.5 animate-in zoom-in duration-200">
+                                        <span>{emoji}</span>
+                                        {userIds.length > 1 && <span className="font-bold text-gray-600 dark:text-gray-300">{userIds.length}</span>}
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
                             </div>
-                            
-                            {/* Action Buttons */}
-                            <div className={`flex items-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${message.isOwn ? 'mr-1 sm:mr-2 flex-row-reverse' : 'ml-1 sm:ml-2'}`}>
-                              {/* Like Button */}
+
+                            {/* Actions (Hover) */}
+                            <div className={`flex items-center gap-1 mt-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 px-10 ${isOwn ? 'flex-row-reverse' : ''}`}>
                               <button
                                 onClick={() => handleLikeMessage(messageId)}
-                                className={`p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${
-                                  Array.isArray(reactions['❤️']) && reactions['❤️'].includes(user._id) ? 'text-red-500' : 'text-gray-400 hover:text-red-500'
-                                }`}
-                                title="Like message"
+                                className="p-1.5 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-400 hover:text-red-500 transition-colors"
                               >
-                                <Heart size={12} fill={Array.isArray(reactions['❤️']) && reactions['❤️'].includes(user._id) ? 'currentColor' : 'none'} />
+                                <Heart size={14} className={reactions['❤️']?.includes(user._id) ? 'fill-red-500 text-red-500' : ''} />
                               </button>
-                              
-                              {/* Reaction Picker Button */}
+                              <button
+                                onClick={() => setReplyingTo(message)}
+                                className="p-1.5 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-400 hover:text-blue-500 transition-colors"
+                              >
+                                <div className="rotate-180"><ArrowLeft size={14} /></div>
+                              </button>
                               <div className="relative">
                                 <button
                                   onClick={() => setShowReactionPicker(showReactionPicker === messageId ? null : messageId)}
-                                  className="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-                                  title="Add reaction"
+                                  className="p-1.5 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-400 hover:text-yellow-500 transition-colors"
                                 >
-                                  <Smile size={12} />
+                                  <Smile size={14} />
                                 </button>
-                                
-                                {/* Reaction Picker */}
                                 {showReactionPicker === messageId && (
-                                  <div className={`reaction-picker absolute ${message.isOwn ? 'right-0' : 'left-0'} top-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg p-1.5 sm:p-2 z-10`}>
-                                    <div className="flex space-x-0.5 sm:space-x-1">
-                                      {commonReactions.map((emoji) => (
-                                        <button
-                                          key={emoji}
-                                          onClick={() => handleMessageReaction(messageId, emoji)}
-                                          className={`p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-base sm:text-lg ${
-                                            Array.isArray(reactions[emoji]) && reactions[emoji].includes(user._id) ? 'bg-blue-100 dark:bg-blue-900' : ''
-                                          }`}
-                                          title={`React with ${emoji}`}
-                                        >
-                                          {emoji}
-                                        </button>
-                                      ))}
-                                    </div>
+                                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-white dark:bg-gray-800 p-2 rounded-full shadow-xl border border-gray-200 dark:border-gray-700 flex gap-2 z-50">
+                                    {commonReactions.map(emoji => (
+                                      <button
+                                        key={emoji}
+                                        onClick={() => handleMessageReaction(messageId, emoji)}
+                                        className="text-lg hover:scale-125 transition-transform"
+                                      >
+                                        {emoji}
+                                      </button>
+                                    ))}
                                   </div>
                                 )}
                               </div>
-                              
-                              {/* Reply Button - Enhanced */}
-                              <button
-                                onClick={() => {
-                                  setReplyingTo(message);
-                                  setTimeout(() => {
-                                    messageInputRef.current?.focus();
-                                  }, 100);
-                                }}
-                                className="p-1.5 sm:p-2 rounded-full hover:bg-blue-50 dark:hover:bg-blue-900/30 text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-200 hover:scale-110"
-                                title="Reply to message"
-                              >
-                                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                  <path fillRule="evenodd" d="M7.707 3.293a1 1 0 010 1.414L5.414 7H11a7 7 0 717 7v2a1 1 0 11-2 0v-2a5 5 0 00-5-5H5.414l2.293 2.293a1 1 0 11-1.414 1.414L2.586 8l3.707-3.707a1 1 0 011.414 0z" clipRule="evenodd" />
-                                </svg>
-                              </button>
-                              
-                              {/* Delete Menu for Own Messages */}
-                              {message.isOwn && (
+                              {isOwn && (
                                 <div className="relative">
                                   <button
                                     onClick={() => setShowDeleteMenu(showDeleteMenu === messageId ? null : messageId)}
-                                    className="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                                    className="p-1.5 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-400 hover:text-red-500 transition-colors"
                                   >
-                                    <MoreVertical size={12} />
+                                    <MoreVertical size={14} />
                                   </button>
                                   {showDeleteMenu === messageId && (
-                                    <div className="absolute right-0 top-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-10">
+                                    <div className="absolute bottom-full right-0 mb-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50">
                                       <button
                                         onClick={() => handleDeleteMessage(messageId)}
-                                        className="w-full px-3 py-2 text-left text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg text-sm whitespace-nowrap"
+                                        className="px-4 py-2 text-red-500 text-sm hover:bg-red-50 dark:hover:bg-red-900/20 w-full text-left rounded-lg"
                                       >
-                                        Delete Message
+                                        Delete
                                       </button>
                                     </div>
                                   )}
@@ -797,94 +722,99 @@ const Messages = () => {
                               )}
                             </div>
                           </div>
-                        </div>
-                        </div>
-                      );
-                    })}
-                    <div ref={messagesEndRef} />
-                  </div>
+                        </motion.div>
+                      </React.Fragment>
+                    );
+                  })
                 )}
+                <div ref={messagesEndRef} />
               </div>
 
-              <div className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 p-3 sm:p-4">
-                {/* Reply Preview */}
+              {/* Input Area */}
+              <div className="p-4 bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800">
                 {replyingTo && (
-                  <div className="mb-3 p-2 bg-gray-50 dark:bg-gray-700 rounded-lg border-l-4 border-blue-500">
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <p className="text-xs text-gray-500 dark:text-gray-400">Replying to:</p>
-                        <p className="text-sm text-gray-700 dark:text-gray-300 truncate">{replyingTo.content}</p>
-                      </div>
-                      <button
-                        onClick={() => setReplyingTo(null)}
-                        className="ml-2 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                      >
-                        ×
-                      </button>
-                    </div>
-                  </div>
-                )}
-                <div className="flex items-center space-x-2 relative">
-                  <button
-                    onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                    className="px-2 sm:px-3 py-2 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg hover:bg-blue-50/50 dark:hover:bg-blue-900/20 transition-all duration-200"
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mb-3 flex items-center justify-between bg-blue-50 dark:bg-blue-900/10 p-3 rounded-2xl border border-blue-100 dark:border-blue-900/30"
                   >
-                    <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 100-2 1 1 0 000 2zm7-1a1 1 0 11-2 0 1 1 0 012 0zm-.464 5.535a1 1 0 10-1.415-1.414 3 3 0 01-4.242 0 1 1 0 00-1.415 1.414 5 5 0 007.072 0z" clipRule="evenodd" />
-                    </svg>
-                  </button>
-                  {showEmojiPicker && (
-                    <div className="absolute bottom-full left-0 mb-2 z-10">
-                      <EmojiPicker
-                        onEmojiClick={(emojiObject) => handleEmojiSelect(emojiObject)}
-                        width={window.innerWidth < 640 ? 280 : 350}
-                        height={window.innerWidth < 640 ? 320 : 400}
-                      />
+                    <div className="flex items-center gap-3 overflow-hidden">
+                      <div className="w-1 h-8 bg-blue-500 rounded-full"></div>
+                      <div>
+                        <p className="text-xs font-bold text-blue-600 dark:text-blue-400">Replying to {replyingTo.senderId === user._id ? 'yourself' : selectedChat.name}</p>
+                        <p className="text-xs text-gray-500 truncate">{replyingTo.content}</p>
+                      </div>
                     </div>
-                  )}
-                  <input
+                    <button onClick={() => setReplyingTo(null)} className="p-1 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-full transition-colors text-blue-500">
+                      <Check size={16} className="rotate-45" />
+                    </button>
+                  </motion.div>
+                )}
+
+                <div className="flex items-end gap-2 bg-gray-100 dark:bg-gray-800 p-2 rounded-[24px] focus-within:ring-2 ring-blue-500/20 transition-all border border-transparent focus-within:border-blue-500/30 focus-within:bg-white dark:focus-within:bg-gray-800">
+                  <div className="flex items-center pb-1 pl-1">
+                    <button
+                      onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                      className="p-2.5 text-gray-500 hover:text-yellow-500 hover:bg-yellow-50 dark:hover:bg-yellow-900/20 rounded-full transition-colors relative"
+                    >
+                      <Smile size={22} />
+                      {showEmojiPicker && (
+                        <div className="absolute bottom-14 left-0 z-50 shadow-2xl rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700">
+                          <EmojiPicker
+                            onEmojiClick={(e) => handleEmojiSelect(e)}
+                            theme={document.documentElement.classList.contains('dark') ? 'dark' : 'light'}
+                            height={350}
+                            width={300}
+                          />
+                        </div>
+                      )}
+                    </button>
+                    <button className="p-2.5 text-gray-500 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-full transition-colors">
+                      <Paperclip size={22} />
+                    </button>
+                  </div>
+
+                  <textarea
                     ref={messageInputRef}
-                    type="text"
-                    placeholder="Type a message..."
+                    rows={1}
+                    placeholder="Type your message..."
                     value={newMessage}
-                    onChange={(e) => {
-                      setNewMessage(e.target.value);
-                      if (showEmojiPicker) {
-                        setShowEmojiPicker(false);
-                      }
-                    }}
+                    onChange={(e) => setNewMessage(e.target.value)}
                     onKeyPress={(e) => {
-                      if (e.key === 'Enter') {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
                         handleSendMessage();
                       }
-                      if (showEmojiPicker) {
-                        setShowEmojiPicker(false);
-                      }
                     }}
-                    className="flex-1 px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    className="flex-1 bg-transparent border-none focus:ring-0 text-gray-900 dark:text-white p-3 max-h-32 resize-none placeholder-gray-400"
+                    style={{ minHeight: '44px' }}
                   />
+
                   <button
                     onClick={handleSendMessage}
-                    className="px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                    disabled={!newMessage.trim()}
+                    className={`p-3 m-1 rounded-full transition-all duration-200 shadow-md flex items-center justify-center ${newMessage.trim()
+                      ? 'bg-blue-600 hover:bg-blue-700 text-white hover:scale-105 active:scale-95'
+                      : 'bg-gray-300 dark:bg-gray-700 text-gray-500 cursor-not-allowed'
+                      }`}
                   >
-                    <Send size={18} />
+                    <Send size={20} className={newMessage.trim() ? 'ml-0.5' : ''} />
                   </button>
                 </div>
               </div>
             </>
           ) : (
-            <div className="flex-1 flex items-center justify-center bg-gray-50 dark:bg-gray-900">
-              <div className="text-center">
-                <div className="w-20 h-20 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Send className="w-10 h-10 text-gray-400" />
+            /* Empty State */
+            <div className="flex-1 flex flex-col items-center justify-center bg-gray-50/50 dark:bg-gray-950 p-8 text-center">
+              <div className="w-32 h-32 bg-blue-50 dark:bg-blue-900/20 rounded-full flex items-center justify-center mb-6 animate-pulse">
+                <div className="w-24 h-24 bg-blue-100 dark:bg-blue-900/40 rounded-full flex items-center justify-center">
+                  <Send className="w-12 h-12 text-blue-600 dark:text-blue-400 ml-2" />
                 </div>
-                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                  Select a conversation
-                </h3>
-                <p className="text-gray-500 dark:text-gray-400">
-                  Choose a connection from the sidebar to start messaging
-                </p>
               </div>
+              <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Welcome to Messages</h2>
+              <p className="text-gray-500 dark:text-gray-400 max-w-md text-lg">
+                Connect, collaborate, and grow your network. Select a conversation from the sidebar to get started.
+              </p>
             </div>
           )}
         </div>

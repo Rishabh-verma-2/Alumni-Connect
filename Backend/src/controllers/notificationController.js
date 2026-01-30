@@ -80,26 +80,26 @@ export const respondToConnectionRequest = async (req, res) => {
     await connectionRequest.save();
 
     const receiver = await User.findById(userId);
-    
+
     // Remove any existing connectionRequest notifications for this request
     await Notification.deleteMany({
       senderId: connectionRequest.senderId,
       receiverId: userId,
       type: 'connectionRequest'
     });
-    
+
     const io = req.app.get('io');
-    
+
     if (action === 'accept') {
       // Add both users to each other's connections
       await User.findByIdAndUpdate(userId, {
         $addToSet: { connections: connectionRequest.senderId }
       });
-      
+
       await User.findByIdAndUpdate(connectionRequest.senderId, {
         $addToSet: { connections: userId }
       });
-      
+
       // Create notification for sender
       const notification = await Notification.create({
         senderId: userId,
@@ -107,7 +107,7 @@ export const respondToConnectionRequest = async (req, res) => {
         message: `${receiver.name || receiver.username} accepted your connection request`,
         type: 'acceptedConnection'
       });
-      
+
       // Emit real-time notification
       io.to(connectionRequest.senderId.toString()).emit('newNotification', {
         ...notification.toObject(),
@@ -121,7 +121,7 @@ export const respondToConnectionRequest = async (req, res) => {
         message: `${receiver.name || receiver.username} rejected your connection request`,
         type: 'rejectedConnection'
       });
-      
+
       // Emit real-time notification
       io.to(connectionRequest.senderId.toString()).emit('newNotification', {
         ...notification.toObject(),
@@ -140,7 +140,7 @@ export const respondToConnectionRequest = async (req, res) => {
 export const getNotifications = async (req, res) => {
   try {
     const userId = req.user._id;
-    
+
     const notifications = await Notification.find({ receiverId: userId })
       .populate('senderId', 'name username profilePicture')
       .sort({ createdAt: -1 })
@@ -188,13 +188,13 @@ export const clearAllNotifications = async (req, res) => {
 export const getConnectionRequests = async (req, res) => {
   try {
     const userId = req.user._id;
-    
-    const requests = await ConnectionRequest.find({ 
-      receiverId: userId, 
-      status: 'pending' 
+
+    const requests = await ConnectionRequest.find({
+      receiverId: userId,
+      status: 'pending'
     })
-    .populate('senderId', 'name username profilePicture role')
-    .sort({ createdAt: -1 });
+      .populate('senderId', 'name username profilePicture role')
+      .sort({ createdAt: -1 });
 
     res.status(200).json({ data: requests });
   } catch (error) {
@@ -203,11 +203,29 @@ export const getConnectionRequests = async (req, res) => {
   }
 };
 
+// Get connection requests sent by user
+export const getSentConnectionRequests = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    const requests = await ConnectionRequest.find({
+      senderId: userId,
+      status: 'pending'
+    })
+      .populate('receiverId', 'name username profilePicture role');
+
+    res.status(200).json({ data: requests });
+  } catch (error) {
+    console.error('Get sent connection requests error:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
 // Get user connections
 export const getConnections = async (req, res) => {
   try {
     const userId = req.user._id;
-    
+
     const user = await User.findById(userId)
       .populate('connections', 'name username role email')
       .select('connections');
@@ -226,6 +244,15 @@ export const getConnections = async (req, res) => {
             currentDesignation: alumniData?.currentDesignation || '',
             branch: alumniData?.branch || ''
           };
+        } else if (connection.role === 'student') {
+          const Student = (await import('../models/Student.js')).default;
+          const studentData = await Student.findOne({ user: connection._id });
+          return {
+            ...connection.toObject(),
+            profilePicture: studentData?.profilePicture || '',
+            branch: studentData?.branch || '',
+            yearOfPassing: studentData?.yearOfPassing || ''
+          };
         }
         return connection.toObject();
       })
@@ -243,16 +270,16 @@ export const removeConnection = async (req, res) => {
   try {
     const userId = req.user._id;
     const { connectionId } = req.params;
-    
+
     // Remove from both users' connections
     await User.findByIdAndUpdate(userId, {
       $pull: { connections: connectionId }
     });
-    
+
     await User.findByIdAndUpdate(connectionId, {
       $pull: { connections: userId }
     });
-    
+
     // Remove the connection request record
     await ConnectionRequest.deleteMany({
       $or: [
@@ -260,7 +287,7 @@ export const removeConnection = async (req, res) => {
         { senderId: connectionId, receiverId: userId }
       ]
     });
-    
+
     res.json({ success: true, message: 'Connection removed successfully' });
   } catch (error) {
     console.error('Remove connection error:', error);
