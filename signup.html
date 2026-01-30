@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Alumni Connect</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="signup-styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-graduation-cap"></i>
+                <span>Alumni Connect</span>
+            </div>
+            <div class="nav-menu" id="nav-menu">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="about.html" class="nav-link">About</a>
+                <a href="index.html#features" class="nav-link">Features</a>
+                <a href="index.html#contact" class="nav-link">Contact</a>
+                <div class="auth-buttons">
+                    <button class="btn-login">Login</button>
+                    <button class="btn-signup active">Sign Up</button>
+                </div>
+            </div>
+            <div class="hamburger" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Signup Section -->
+    <section class="signup-section">
+        <div class="signup-container">
+            <!-- Left Side - Illustration -->
+            <div class="signup-illustration">
+                <div class="illustration-content">
+                    <i class="fas fa-users-cog"></i>
+                    <h3>Join Our Community</h3>
+                    <p>Connect with alumni, students, and faculty to build meaningful relationships and advance your career.</p>
+                    <div class="features-list">
+                        <div class="feature-item">
+                            <i class="fas fa-check"></i>
+                            <span>Verified Alumni Network</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-check"></i>
+                            <span>Career Guidance & Mentorship</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-check"></i>
+                            <span>Job & Internship Opportunities</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side - Form -->
+            <div class="signup-form-container">
+                <div class="signup-form-card">
+                    <h1>Create Your Alumni Connect Account</h1>
+                    
+                    <!-- Role Selection -->
+                    <div class="role-selection">
+                        <label>Select Your Role:</label>
+                        <div class="role-buttons">
+                            <button type="button" class="role-btn" data-role="alumni">Alumni</button>
+                            <button type="button" class="role-btn" data-role="student">Student</button>
+                            <button type="button" class="role-btn" data-role="faculty">Faculty</button>
+                            <button type="button" class="role-btn" data-role="aspirant">Aspirant</button>
+                        </div>
+                    </div>
+
+                    <form id="signupForm" class="signup-form">
+                        <!-- Common Fields -->
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="fullName">Full Name *</label>
+                                <input type="text" id="fullName" name="fullName" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="email">Email ID *</label>
+                                <input type="email" id="email" name="email" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="mobile">Mobile Number *</label>
+                                <input type="tel" id="mobile" name="mobile" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="password">Password *</label>
+                                <input type="password" id="password" name="password" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="confirmPassword">Confirm Password *</label>
+                            <input type="password" id="confirmPassword" name="confirmPassword" required>
+                        </div>
+
+                        <!-- Role-specific Fields -->
+                        <div id="roleSpecificFields"></div>
+
+                        <!-- Terms and Captcha -->
+                        <div class="form-group checkbox-group">
+                            <input type="checkbox" id="terms" name="terms" required>
+                            <label for="terms">I agree to the <a href="#">Terms & Conditions</a> and <a href="#">Privacy Policy</a></label>
+                        </div>
+
+                        <div class="form-group captcha-group">
+                            <label>Verify you're human:</label>
+                            <div class="captcha-container">
+                                <span id="captchaQuestion">5 + 3 = ?</span>
+                                <input type="number" id="captchaAnswer" name="captchaAnswer" required>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-create-account">Create Account</button>
+                    </form>
+
+                    <div class="login-link">
+                        Already have an account? <a href="#">Login here</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="signup.js"></script>
+</body>
+</html>

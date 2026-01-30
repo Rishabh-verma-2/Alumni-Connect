@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Alumni Connect</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="dashboard-styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar dashboard-nav">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-graduation-cap"></i>
+                <span>Alumni Connect</span>
+            </div>
+            <div class="nav-menu" id="nav-menu">
+                <a href="#" class="nav-link active">Dashboard</a>
+                <a href="#" class="nav-link">Mentors</a>
+                <a href="#" class="nav-link">Jobs</a>
+                <a href="events.html" class="nav-link">Events</a>
+                <a href="#" class="nav-link">Messages</a>
+                <div class="user-profile">
+                    <div class="profile-dropdown" onclick="toggleDropdown()">
+                        <div class="profile-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <span class="username">John Doe</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="dropdown-menu" id="dropdownMenu">
+                        <a href="edit-profile.html" class="dropdown-item">
+                            <i class="fas fa-edit"></i> Edit Profile
+                        </a>
+                        <a href="#" class="dropdown-item">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Dashboard Content -->
+    <section class="dashboard-main">
+        <div class="container">
+            <div class="dashboard-grid">
+                <!-- Left Column -->
+                <div class="dashboard-left">
+                    <!-- Student Profile Card -->
+                    <div class="dashboard-card profile-card">
+                        <div class="profile-header">
+                            <div class="profile-avatar-large">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="profile-info">
+                                <h2>John Doe</h2>
+                                <p class="course">Computer Science Engineering</p>
+                                <p class="year">Final Year (2024)</p>
+                            </div>
+                        </div>
+                        <div class="skills-section">
+                            <h4><i class="fas fa-code"></i> Skills</h4>
+                            <div class="skills-list">
+                                <span class="skill-tag">JavaScript</span>
+                                <span class="skill-tag">React</span>
+                                <span class="skill-tag">Node.js</span>
+                                <span class="skill-tag">Python</span>
+                                <span class="skill-tag">SQL</span>
+                                <span class="skill-tag">Git</span>
+                            </div>
+                        </div>
+                        <button class="btn-connect-alumni">
+                            <i class="fas fa-users"></i>
+                            Connect with Alumni
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Right Column -->
+                <div class="dashboard-right">
+                    <!-- Alumni List -->
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-graduation-cap"></i> Alumni Network</h3>
+                            <a href="#" class="view-all-link">View All</a>
+                        </div>
+                        <div class="alumni-list">
+                            <div class="alumni-item">
+                                <div class="alumni-avatar">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div class="alumni-info">
+                                    <h4>Dr. Amit Singh</h4>
+                                    <p>Senior Software Architect at Amazon</p>
+                                    <p class="graduation-year">Class of 2015</p>
+                                    <div class="alumni-skills">
+                                        <span class="skill-tag small">Java</span>
+                                        <span class="skill-tag small">AWS</span>
+                                        <span class="skill-tag small">System Design</span>
+                                    </div>
+                                </div>
+                                <button class="btn-connect">Connect</button>
+                            </div>
+                            <div class="alumni-item">
+                                <div class="alumni-avatar">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div class="alumni-info">
+                                    <h4>Neha Gupta</h4>
+                                    <p>Product Manager at Meta</p>
+                                    <p class="graduation-year">Class of 2018</p>
+                                    <div class="alumni-skills">
+                                        <span class="skill-tag small">Product Strategy</span>
+                                        <span class="skill-tag small">Analytics</span>
+                                    </div>
+                                </div>
+                                <button class="btn-connect">Connect</button>
+                            </div>
+                            <div class="alumni-item">
+                                <div class="alumni-avatar">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div class="alumni-info">
+                                    <h4>Rajesh Kumar</h4>
+                                    <p>Data Scientist at Google</p>
+                                    <p class="graduation-year">Class of 2017</p>
+                                    <div class="alumni-skills">
+                                        <span class="skill-tag small">Machine Learning</span>
+                                        <span class="skill-tag small">Python</span>
+                                    </div>
+                                </div>
+                                <button class="btn-connect">Connect</button>
+                            </div>
+                            <div class="alumni-item">
+                                <div class="alumni-avatar">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div class="alumni-info">
+                                    <h4>Priya Sharma</h4>
+                                    <p>UX Designer at Microsoft</p>
+                                    <p class="graduation-year">Class of 2019</p>
+                                    <div class="alumni-skills">
+                                        <span class="skill-tag small">UI/UX</span>
+                                        <span class="skill-tag small">Figma</span>
+                                    </div>
+                                </div>
+                                <button class="btn-connect">Connect</button>
+                            </div>
+                            <div class="alumni-item">
+                                <div class="alumni-avatar">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div class="alumni-info">
+                                    <h4>Vikram Patel</h4>
+                                    <p>Startup Founder & CEO</p>
+                                    <p class="graduation-year">Class of 2016</p>
+                                    <div class="alumni-skills">
+                                        <span class="skill-tag small">Entrepreneurship</span>
+                                        <span class="skill-tag small">Leadership</span>
+                                    </div>
+                                </div>
+                                <button class="btn-connect">Connect</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Alumni Connect</h3>
+                    <p>Connecting Students, Alumni & Faculty Together</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <a href="../about.html">About</a>
+                    <a href="#events">Events</a>
+                    <a href="#contact">Contact</a>
+                    <a href="../signup.html">Signup</a>
+                </div>
+                <div class="footer-section">
+                    <h4>Contact Info</h4>
+                    <p><i class="fas fa-envelope"></i> info@alumniconnect.com</p>
+                    <p><i class="fas fa-phone"></i> +1 (555) 123-4567</p>
+                    <p><i class="fas fa-map-marker-alt"></i> University Campus, City</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function toggleDropdown() {
+            const dropdown = document.getElementById('dropdownMenu');
+            dropdown.classList.toggle('show');
+        }
+
+        // Close dropdown when clicking outside
+        window.onclick = function(event) {
+            if (!event.target.matches('.profile-dropdown') && !event.target.closest('.profile-dropdown')) {
+                const dropdown = document.getElementById('dropdownMenu');
+                if (dropdown.classList.contains('show')) {
+                    dropdown.classList.remove('show');
+                }
+            }
+        }
+    </script>
+</body>
+</html>
